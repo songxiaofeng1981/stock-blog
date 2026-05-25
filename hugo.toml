@@ -1,0 +1,79 @@
+baseURL = "https://songxiaofeng2019.github.io/stock-blog/"
+locale = "zh-cn"
+title = "Song 的投资笔记"
+theme = "hugo-theme-stack"
+
+defaultContentLanguage = "zh-cn"
+hasCJKLanguage = true
+
+[pagination]
+  pagerSize = 10
+
+[permalinks]
+  post = "/p/:slug/"
+
+[menu]
+  [[menu.main]]
+    identifier = "home"
+    name = "首页"
+    url = "/"
+    weight = -100
+    [menu.main.params]
+      icon = "home"
+      newTab = false
+
+  [[menu.main]]
+    identifier = "archives"
+    name = "归档"
+    url = "/archives/"
+    weight = 0
+    [menu.main.params]
+      icon = "archives"
+      newTab = false
+
+  [[menu.main]]
+    identifier = "tags"
+    name = "标签"
+    url = "/tags/"
+    weight = 10
+    [menu.main.params]
+      icon = "tag"
+      newTab = false
+
+[params]
+  mainSections = ["post"]
+  rssFullContent = true
+
+  [params.footer]
+    since = 2026
+    customText = "Song 的投资笔记 | 逻辑驱动，长期主义"
+
+  [params.sidebar]
+    compact = false
+
+  [params.article]
+    toc = true
+    readingTime = true
+    headingAnchor = true
+
+    [params.article.license]
+      enabled = false
+
+  [params.comments]
+    enabled = false
+
+  [params.colorScheme]
+    toggle = true
+    default = "auto"
+
+  [[params.widgets.homepage]]
+    type = "search"
+
+  [[params.widgets.homepage]]
+    type = "tag-cloud"
+
+    [params.widgets.homepage.params]
+      limit = 20
+
+  [[params.widgets.page]]
+    type = "toc"

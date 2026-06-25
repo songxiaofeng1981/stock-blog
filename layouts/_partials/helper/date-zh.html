@@ -1,0 +1,9 @@
+{{- /*
+  中文日期格式化 helper：输入一个 time.Time，输出「2026年06月25日 星期四」。
+  Hugo 的 time.Format 在本版本不会把星期名本地化（会输出 Thursday），
+  所以这里用 .Weekday (0-6) 自己查表。纯数字部分用 .Format（不涉及本地化，安全）。
+  用法：{{ partial "helper/date-zh" $page.Date }}
+*/ -}}
+{{- $d := . -}}
+{{- $w := index (slice "星期日" "星期一" "星期二" "星期三" "星期四" "星期五" "星期六") (int $d.Weekday) -}}
+{{- return (printf "%s %s" ($d.Format "2006年01月02日") $w) -}}

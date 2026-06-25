@@ -44,6 +44,10 @@ hasCJKLanguage = true
   mainSections = ["post"]
   rssFullContent = true
 
+  [params.dateFormat]
+    published = "2006年01月02日"
+    lastUpdated = "2006年01月02日 15:04"
+
   [params.footer]
     since = 2026
     customText = "Song 的投资笔记 | 逻辑驱动，长期主义"

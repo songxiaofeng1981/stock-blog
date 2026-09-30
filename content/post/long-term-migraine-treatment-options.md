@@ -20,7 +20,7 @@ tags:
 
 欧立停是**苯甲酸利扎曲普坦**，属于曲普坦类，用于偏头痛发作时的急性治疗，不能预防下一次发作。长期研究观察到利扎曲普坦能够持续发挥作用，但这不能保证每个人长期疗效完全不变；需要更直接关注的是发作频率，以及是否出现药物过度使用。[利扎曲普坦长期研究](https://pubmed.ncbi.nlm.nih.gov/11549974/)
 
-国际头痛疾病分类将“每月使用曲普坦 **10 天或以上、持续超过 3 个月**”列为曲普坦过度使用性头痛的用药条件；诊断还需要结合每月头痛至少 15 天等标准。普通非阿片类止痛药的相应使用门槛是每月 15 天或以上。**这里数的是用药的天数，不是药片数。**如果接近这些频率，就值得尽快让头痛专科医生评估，不要自行停药或随意加量。[ICHD-3：曲普坦过度使用性头痛](https://ichd-3.org/8-headache-attributed-to-a-substance-or-its-withdrawal/8-2-medication-overuse-headache-moh/8-2-2-triptan-overuse-headache/) · [ICHD-3：非阿片类止痛药过度使用性头痛](https://ichd-3.org/8-headache-attributed-to-a-substance-or-its-withdrawal/8-2-medication-overuse-headache-moh/8-2-3-simple-analgesic-overuse-headache/)
+国际头痛疾病分类将“每月使用曲普坦 **10 天或以上、持续超过 3 个月**”列为曲普坦过度使用性头痛的用药条件；诊断还需要结合每月头痛至少 15 天等标准。普通非阿片类止痛药的相应使用门槛是每月 15 天或以上。这里数的是用药的天数，不是药片数。如果接近这些频率，就值得尽快让头痛专科医生评估，不要自行停药或随意加量。[ICHD-3：曲普坦过度使用性头痛](https://ichd-3.org/8-headache-attributed-to-a-substance-or-its-withdrawal/8-2-medication-overuse-headache-moh/8-2-2-triptan-overuse-headache/) · [ICHD-3：非阿片类止痛药过度使用性头痛](https://ichd-3.org/8-headache-attributed-to-a-substance-or-its-withdrawal/8-2-medication-overuse-headache-moh/8-2-3-simple-analgesic-overuse-headache/)
 
 所以，下一次就诊前最重要的两个数字是：**一个月头痛多少天？一个月使用欧立停多少天？**
 

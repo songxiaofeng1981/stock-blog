@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>管理经历 · 动态系统图 V2</title>
+<style>
+  :root{
+    --bg:#090d10;--panel:#0d1419;--panel2:#0b1115;--grid:#182229;
+    --text:#d7e0e6;--muted:#788791;--cyan:#6bd6e3;--blue:#78aee8;
+    --green:#72d39c;--purple:#b19ae8;--gold:#e2c86f;--line:#2a3942;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050708}
+  body{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","PingFang SC","Microsoft YaHei",monospace;color:var(--text)}
+
+  /* 固定 1600×900 设计稿，JS 只负责整体缩放，避免任何浏览器尺寸下发生重叠 */
+  #canvas{
+    position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;
+    overflow:hidden;background:
+      radial-gradient(circle at 70% 26%,rgba(81,140,153,.08),transparent 28%),
+      radial-gradient(circle at 22% 43%,rgba(134,109,196,.06),transparent 31%),
+      linear-gradient(180deg,#0c1216,#0a0f12 76%,#071015);
+  }
+  #canvas::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.20;background-image:
+    linear-gradient(rgba(255,255,255,.026) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:40px 40px}
+
+  .windowbar{position:absolute;left:0;right:0;top:0;height:38px;border-bottom:1px solid #27343b;background:#0d1216;display:flex;align-items:center;padding:0 17px;color:#596770;font-size:12px;letter-spacing:.05em}
+  .traffic{display:flex;gap:7px;margin-right:18px}.traffic i{width:9px;height:9px;border-radius:50%;display:block}.traffic i:nth-child(1){background:#e15f5f}.traffic i:nth-child(2){background:#dfb857}.traffic i:nth-child(3){background:#5db578}
+
+  .head{position:absolute;left:28px;right:28px;top:54px;height:72px;border-bottom:1px solid #2a3740;text-align:center}
+  .title{font-size:18px;letter-spacing:.09em;font-weight:800;color:#edf4f6}
+  .title .c{color:var(--cyan)}.title .g{color:var(--green)}.title .p{color:var(--purple)}
+  .legend{display:flex;justify-content:center;gap:34px;margin-top:17px;font-size:12px;color:#76848e}
+  .legend span{white-space:nowrap}.sq{display:inline-block;width:8px;height:8px;margin-right:8px;vertical-align:1px}
+
+  .card{position:absolute;background:rgba(12,19,24,.94);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.16),inset 0 0 0 1px rgba(255,255,255,.012);padding:16px 18px}
+  .card h3,.card h4{margin:0}.card p{margin:0;color:#99a7af;line-height:1.55}.muted{color:#71808a}.em{color:#d0dade}.tag{font-size:10px;letter-spacing:.07em;color:#65757f;margin-top:7px}
+  .purple{border-color:#7664a8}.purple h3{color:var(--purple)}
+  .cyan{border-color:#4aa7b5}.cyan h3{color:var(--cyan)}
+  .green{border-color:#579b75}.green h3{color:var(--green)}
+  .blue{border-color:#527ca9}.blue h4{color:var(--blue)}
+
+  /* 左侧：经验样本，完整独立列 */
+  .experience{left:28px;top:154px;width:292px;height:586px;padding:18px 18px}
+  .experience h3{font-size:15px;letter-spacing:.04em;margin-bottom:12px}
+  .experience .lead{font-size:13px;color:#d4dde2;line-height:1.6}
+  .mini{margin-top:18px;padding-top:15px;border-top:1px dashed #40375c}
+  .mini b{display:block;color:#bec9cf;font-size:11px;margin-bottom:5px}.mini p{font-size:11px}
+
+  /* 中央顶部：管理思维 */
+  .hero{left:365px;top:154px;width:1207px;height:104px;text-align:center;padding-top:17px}
+  .hero h3{font-size:14px}.hero .mega{font-size:20px;font-weight:800;color:#edf4f6;margin-top:7px;letter-spacing:.03em}
+
+  /* 结构层 */
+  .structure{left:365px;top:292px;width:1207px;height:151px}
+  .structure h3{font-size:14px;margin-bottom:13px}
+  .rows{display:grid;grid-template-columns:110px 1fr 72px;gap:9px 14px;align-items:center}
+  .label{font-size:11px;color:#9eabb3}.track{height:11px;background:#18242a;overflow:hidden;position:relative}.fill{height:100%;transform-origin:left center;animation:flowBar 5.6s ease-in-out infinite}.fill.c{width:76%;background:var(--cyan)}.fill.g{width:67%;background:var(--green);animation-delay:.45s}.fill.p{width:88%;background:var(--purple);animation-delay:.9s}.unit{font-size:11px;color:#687985}
+
+  /* 三块核心管理动作：绝对定位，保证不再进入普通文档流 */
+  .action{top:480px;width:372px;height:186px;padding:18px 20px}
+  .action h4{font-size:14px;margin-bottom:14px}.action p{font-size:12px}.action .state{position:absolute;left:20px;bottom:16px;font-size:10px;color:#71818b}
+  .a1{left:365px}.a2{left:780px}.a3{left:1195px}
+  .state .led{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 7px rgba(114,211,156,.45);animation:led 1.6s ease-in-out infinite}
+
+  /* 底部结论 */
+  .review{left:510px;top:704px;width:918px;height:84px;text-align:center;padding-top:14px}
+  .review h3{font-size:13px}.review .mega{font-size:16px;font-weight:800;color:#e8f0f3;margin-top:5px}
+
+  /* 底部日志固定在最底层，不与主内容重叠 */
+  .logs{position:absolute;left:28px;right:28px;top:814px;height:60px;border-top:1px solid #253139;padding-top:7px;font-size:10px;color:#63727b;overflow:hidden}
+  .logline{height:14px;white-space:nowrap;animation:logPulse 6s linear infinite}.logline:nth-child(2){animation-delay:1s}.logline:nth-child(3){animation-delay:2s}.logline:nth-child(4){animation-delay:3s}.who{display:inline-block;width:92px;color:var(--green);font-weight:700}
+  .terminal{position:absolute;left:28px;right:28px;bottom:7px;height:18px;border-top:1px solid #1e2a31;padding-top:4px;font-size:10px;color:#65747d}.prompt{color:var(--green)}.status{float:right}.cursor{display:inline-block;width:7px;height:11px;background:var(--green);vertical-align:-1px;animation:blink .8s steps(1) infinite}
+
+  /* 连线层 */
+  .flow{position:absolute;left:0;top:0;width:1600px;height:900px;pointer-events:none}
+  .flow path{fill:none;stroke-width:1.4;stroke-dasharray:6 7;opacity:.72;animation:dash 1.5s linear infinite}.pc{stroke:#4d9dab}.pb{stroke:#52779e}.pg{stroke:#559779}.pp{stroke:#7464a1}
+  .moving{filter:drop-shadow(0 0 6px currentColor)}
+
+  /* 只做强调动画，不把内容隐藏掉 */
+  .hero{animation:glowC 5.5s ease-in-out infinite}
+  .structure{animation:glowG 6s ease-in-out infinite .6s}
+  .a1,.a2,.a3{animation:softLift 6.5s ease-in-out infinite}.a2{animation-delay:.6s}.a3{animation-delay:1.2s}
+  .review{animation:glowC 6.2s ease-in-out infinite 1.8s}
+
+  @keyframes flowBar{0%,100%{transform:scaleX(.18);opacity:.55}45%,70%{transform:scaleX(1);opacity:1}}
+  @keyframes dash{to{stroke-dashoffset:-26}}
+  @keyframes led{50%{opacity:.35;box-shadow:none}}
+  @keyframes softLift{0%,100%{transform:translateY(0);box-shadow:0 8px 24px rgba(0,0,0,.16)}50%{transform:translateY(-3px);box-shadow:0 12px 30px rgba(67,111,145,.11)}}
+  @keyframes glowC{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.16)}50%{box-shadow:0 0 22px rgba(107,214,227,.10),0 8px 24px rgba(0,0,0,.16)}}
+  @keyframes glowG{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.16)}50%{box-shadow:0 0 22px rgba(114,211,156,.10),0 8px 24px rgba(0,0,0,.16)}}
+  @keyframes logPulse{0%,100%{opacity:.42}50%{opacity:1}}
+  @keyframes blink{50%{opacity:0}}
+
+  .resize-tip{position:absolute;right:28px;top:134px;font-size:9px;color:#41515b;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div id="canvas">
+  <div class="windowbar"><div class="traffic"><i></i><i></i><i></i></div>~/management-system · live-map · 1600×900</div>
+
+  <div class="head">
+    <div class="title">MANAGEMENT EXPERIENCE TREE · <span class="c">STRUCTURE</span> · <span class="g">VISIBILITY</span> · <span class="p">BOUNDARY</span></div>
+    <div class="legend">
+      <span><i class="sq" style="background:var(--cyan)"></i>structure · 结构化</span>
+      <span><i class="sq" style="background:var(--blue)"></i>check-in · 进度触碰</span>
+      <span><i class="sq" style="background:var(--green)"></i>visibility · 工作透明</span>
+      <span><i class="sq" style="background:var(--purple)"></i>boundary · 关系边界</span>
+    </div>
+  </div>
+  <div class="resize-tip">AUTO SCALE · CONTENT ALWAYS VISIBLE</div>
+
+  <svg class="flow" viewBox="0 0 1600 900" aria-hidden="true">
+    <path class="pp" d="M320 205 H365"/>
+    <path class="pc" d="M968 258 V292"/>
+    <path class="pc" d="M968 443 V466"/>
+    <path class="pb" d="M968 466 H551 V480"/>
+    <path class="pb" d="M968 466 V480"/>
+    <path class="pb" d="M968 466 H1381 V480"/>
+    <path class="pg" d="M551 666 V687 H969"/>
+    <path class="pg" d="M966 666 V704"/>
+    <path class="pg" d="M1381 666 V687 H969"/>
+    <circle r="4" fill="#6bd6e3"><animateMotion dur="3.8s" repeatCount="indefinite" path="M320 205 H365"/></circle>
+    <circle r="4" fill="#78aee8"><animateMotion begin="1s" dur="5.2s" repeatCount="indefinite" path="M968 443 V466 H551 V480"/></circle>
+    <circle r="4" fill="#72d39c"><animateMotion begin="2s" dur="5.5s" repeatCount="indefinite" path="M1381 666 V687 H969 V704"/></circle>
+  </svg>
+
+  <section class="card purple experience">
+    <h3>EXPERIENCE · 长期管理样本</h3>
+    <div class="lead">从“一个人也不管”到<br><b>2 → 4 → 10 → 50 人</b></div>
+    <div class="mini"><b>招聘 / 面试 / 共事</b><p>形成大量“人”的样本。样本越多，看人的角度越容易变化。</p></div>
+    <div class="mini"><b>识人不是第一印象</b><p>判断 → 相处 → 验证 → 修正。真正的识人来自长期反馈。</p></div>
+    <div class="mini"><b>长期变化</b><p>少看标签，多看反馈；少凭感觉，多看长期结果。</p></div>
+    <div class="mini"><b>关键认知</b><p>管理不是“职位变化”，而是观察人的机会、责任与反馈都变多。</p></div>
+  </section>
+
+  <section class="card cyan hero">
+    <h3>MANAGER · 形成一套默认思维</h3>
+    <div class="mega">把模糊事情 → 变成可交付系统</div>
+    <div class="tag">scope · people · time · cost · risk</div>
+  </section>
+
+  <section class="card green structure">
+    <h3>STRUCTURE LAYER · 先搭框架，再谈细节</h3>
+    <div class="rows">
+      <div class="label">工作范围</div><div class="track"><div class="fill c"></div></div><div class="unit">scope</div>
+      <div class="label">资源 / 人力</div><div class="track"><div class="fill g"></div></div><div class="unit">people</div>
+      <div class="label">时间 / 成本</div><div class="track"><div class="fill p"></div></div><div class="unit">time</div>
+    </div>
+    <div class="tag">装修案例：工作内容 / 材料 / 工期 / 人力 / 费用，先列大项，后补细节</div>
+  </section>
+
+  <section class="card blue action a1">
+    <h4>CHECK-IN · “摸一下”</h4>
+    <p>deadline 前 1–2 天问一句：<br><span class="em">“到时间没问题吧？”</span></p>
+    <p style="margin-top:12px">不是单纯催，而是让偏差、阻塞和风险提前暴露。</p>
+    <div class="state"><span class="led"></span>progress / risk / follow-up</div>
+  </section>
+
+  <section class="card blue action a2">
+    <h4>VISIBILITY · 主动汇报</h4>
+    <p>好员工主动同步：<br><span class="em">进展 / 风险 / 结果 / 价值</span></p>
+    <p style="margin-top:12px">减少领导主动 pull 信息的成本，让工作保持透明和可预测。</p>
+    <div class="state"><span class="led"></span>transparent / predictable</div>
+  </section>
+
+  <section class="card blue action a3">
+    <h4>QUALITY · 不只问“做完了吗”</h4>
+    <p>还要让对方讲：<br><span class="em">“你怎么做的？为什么？”</span></p>
+    <p style="margin-top:12px">进度可追踪，质量也必须被验证；必要时做 review / deep dive。</p>
+    <div class="state"><span class="led"></span>review / deep dive</div>
+  </section>
+
+  <section class="card cyan review">
+    <h3>REVIEW · 管理动作最终回到边界</h3>
+    <div class="mega">事情可以管理，关系不一定要管理</div>
+    <div class="tag">工作 / 装修：高效 · 家庭 / 孩子：需要边界感</div>
+  </section>
+
+  <div class="logs">
+    <div class="logline"><span class="who">manager</span> scope fixed → major items first → details later</div>
+    <div class="logline"><span class="who">employee</span> progress synced → risk exposed before deadline</div>
+    <div class="logline"><span class="who">system</span> actual value × visibility × attribution → perceived value</div>
+    <div class="logline"><span class="who">boundary</span> work logic applied to family → reduce frequency, preserve autonomy</div>
+  </div>
+  <div class="terminal"><span class="prompt">~/management $</span> run --mode structured --check-in minimal --visibility high <span class="cursor"></span><span class="status">effort [high] · signal [clear] · boundary [on]</span></div>
+</div>
+
+<script>
+(function(){
+  const W=1600,H=900, el=document.getElementById('canvas');
+  function fit(){
+    const s=Math.min(innerWidth/W, innerHeight/H);
+    const x=(innerWidth-W*s)/2, y=(innerHeight-H*s)/2;
+    el.style.transform=`translate(${x}px,${y}px) scale(${s})`;
+  }
+  addEventListener('resize',fit,{passive:true}); fit();
+})();
+</script>
+</body>
+</html>

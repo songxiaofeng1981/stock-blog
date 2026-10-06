@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI算力大基建｜我的理解框架（一家之言）</title>
+<style>
+:root{
+  --paper:#f7f4e8;
+  --paper2:#fffdf5;
+  --bg:#e9e6db;
+  --ink:#171717;
+  --muted:#6f6b61;
+  --line:#d9d3c3;
+  --yellow:#ffd92f;
+  --red:#df4b3f;
+  --green:#2f8a66;
+  --blue:#2f6fc7;
+  --purple:#7556b9;
+  --orange:#e38a2b;
+  --shadow:0 16px 48px rgba(36,31,20,.10);
+  --radius:24px;
+  --max:1240px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;color:var(--ink);background:
+  radial-gradient(circle at 12% 6%,rgba(255,217,47,.16),transparent 28%),
+  radial-gradient(circle at 88% 18%,rgba(47,138,102,.12),transparent 26%),
+  var(--bg);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+button,a{font:inherit}
+a{color:inherit;text-decoration:none}
+.top-progress{position:fixed;inset:0 0 auto 0;height:5px;background:rgba(0,0,0,.06);z-index:99}
+.top-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--yellow),var(--red));transform-origin:left center}
+
+.shell{width:min(calc(100% - 48px),var(--max));margin:0 auto;padding:26px 0 70px}
+.sticky-tools{position:sticky;top:14px;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 auto 20px;padding:10px 12px 10px 16px;border:1px solid rgba(23,23,23,.12);border-radius:999px;background:rgba(247,244,232,.88);backdrop-filter:blur(14px);box-shadow:0 8px 30px rgba(33,29,20,.07)}
+.brand{font-weight:950;letter-spacing:-.5px;white-space:nowrap}
+.toc{display:flex;gap:6px;overflow:auto;scrollbar-width:none;flex:1;justify-content:center}
+.toc::-webkit-scrollbar{display:none}
+.toc a{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;color:var(--muted);font-size:13px;font-weight:850;transition:.22s}
+.toc a:hover,.toc a.active{color:var(--ink);background:#fff;border-color:transparent;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.motion-btn{border:0;border-radius:999px;background:var(--ink);color:var(--paper);padding:8px 13px;font-size:13px;font-weight:850;cursor:pointer;white-space:nowrap}
+
+.page{position:relative;overflow:hidden;margin:0 0 28px;background:var(--paper);border:1px solid rgba(23,23,23,.08);border-radius:32px;box-shadow:var(--shadow);padding:54px 58px;min-height:720px;display:flex;flex-direction:column;justify-content:center}
+.page.compact{min-height:auto;justify-content:flex-start}
+.page::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-230px;top:-220px;background:var(--wash,rgba(255,217,47,.12));filter:blur(2px);pointer-events:none}
+.eyebrow{font-size:14px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+h1{font-size:68px;line-height:1.04;letter-spacing:-3.8px;margin:0;font-weight:980;max-width:1020px}
+h2{font-size:38px;line-height:1.15;letter-spacing:-1.8px;margin:0;font-weight:950}
+h3{font-size:22px;line-height:1.25;margin:0;font-weight:950}
+p{font-size:18px;line-height:1.78;margin:0;color:#2a2925}
+.lead{font-size:23px;line-height:1.65;font-weight:760;max-width:1050px;margin-top:24px;color:#24231f}
+.hl{position:relative;display:inline-block;z-index:0}
+.hl::before{content:"";position:absolute;left:-7px;right:-7px;bottom:.08em;height:.66em;background:var(--yellow);border-radius:14px 22px 10px 16px;transform:rotate(-1.3deg);z-index:-1;opacity:.9}
+.red{color:var(--red);font-weight:930}.green{color:var(--green);font-weight:930}.blue{color:var(--blue);font-weight:930}
+.quote{margin-top:34px;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);padding:22px 2px;font-size:30px;line-height:1.45;font-weight:950;letter-spacing:-1px;max-width:1060px}
+.meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:#fffdf6;font-weight:850;color:#44423c}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:34px}
+.card{grid-column:span 6;background:rgba(255,253,245,.84);border:1px solid var(--line);border-radius:22px;padding:24px;position:relative;overflow:hidden}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}.card.eight{grid-column:span 8}.card.four{grid-column:span 4}
+.card .kicker{font-size:13px;color:var(--muted);font-weight:900;letter-spacing:.06em;margin-bottom:10px}
+.card p{font-size:17px;line-height:1.68}
+.icon{font-size:36px;margin-bottom:12px}
+.num-badge{display:inline-flex;width:32px;height:32px;border-radius:50%;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);font-weight:950;margin-right:9px;vertical-align:3px;font-size:14px}
+.big-stat{font-size:50px;font-weight:980;letter-spacing:-2px;line-height:1;margin:8px 0 12px}
+.small-note{font-size:13px;line-height:1.6;color:var(--muted);font-weight:700}
+
+.timeline{position:relative;margin-top:36px;padding-left:42px}
+.timeline::before{content:"";position:absolute;left:13px;top:3px;bottom:4px;width:3px;border-radius:3px;background:var(--line)}
+.tl{position:relative;padding:0 0 26px 20px}
+.tl:last-child{padding-bottom:0}
+.tl::before{content:"";position:absolute;left:-36px;top:7px;width:14px;height:14px;border:4px solid var(--paper);border-radius:50%;background:var(--accent,var(--red));box-shadow:0 0 0 2px var(--accent,var(--red))}
+.tl .year{font-size:13px;font-weight:950;color:var(--accent,var(--red));letter-spacing:.06em;margin-bottom:4px}
+.tl .txt{font-size:18px;line-height:1.6;font-weight:760}
+
+.compare{display:grid;grid-template-columns:1fr 86px 1fr;gap:20px;align-items:stretch;margin-top:34px}
+.side{border:1px solid var(--line);border-radius:24px;padding:26px;background:#fffdf5}
+.side h3{font-size:26px;margin-bottom:18px}
+.mid{display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:980;color:var(--muted)}
+.item{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px dashed var(--line)}
+.item:last-child{border-bottom:0}
+.item b{display:block;font-size:17px;line-height:1.45;margin-bottom:4px}
+.item span{font-size:15px;color:var(--muted);line-height:1.55}
+.dot{width:11px;height:11px;border-radius:50%;margin-top:7px;flex:0 0 11px;background:var(--accent,var(--green))}
+
+.cost-map{margin-top:34px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:stretch}
+.node{min-height:128px;padding:16px 12px;border-radius:18px;background:#fffdf5;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.node .emoji{font-size:28px}.node b{font-size:17px;line-height:1.25}.node small{font-size:12px;color:var(--muted);font-weight:780;line-height:1.45}
+.node::after{content:"×";position:absolute;right:-12px;top:44px;font-size:25px;font-weight:980;color:#9a9588;z-index:2}
+.node:last-child::after{display:none}
+.formula{margin-top:18px;padding:20px 24px;border-radius:18px;background:var(--ink);color:var(--paper);font-size:25px;line-height:1.45;font-weight:950;text-align:center}
+
+.signal-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:30px}
+.signal{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:18px;background:#fffdf5;padding:18px}
+.signal .snum{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:950;flex:0 0 34px}
+.signal b{font-size:17px;display:block;margin-bottom:4px}.signal span{font-size:14px;line-height:1.55;color:var(--muted)}
+
+.footer-card{margin-top:34px;padding:24px 26px;border:3px solid var(--ink);border-radius:22px;background:#fffdf5}
+.footer-card .label{font-size:13px;color:var(--muted);font-weight:900;margin-bottom:8px}.footer-card .big{font-size:30px;line-height:1.48;font-weight:950}
+.warn{margin-top:18px;background:var(--yellow);border-radius:18px;padding:16px 18px;font-size:15px;line-height:1.62;font-weight:820}
+.footer{margin-top:30px;color:var(--muted);font-size:13px;line-height:1.65;text-align:center}
+
+/* animation: content is visible without JS; JS only enhances */
+.js .reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.8,.2,1)}
+.js .reveal.in{opacity:1;transform:none}
+.js .stagger > *{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.js .stagger.in > *{opacity:1;transform:none}
+.js .stagger.in > *:nth-child(2){transition-delay:.08s}.js .stagger.in > *:nth-child(3){transition-delay:.16s}.js .stagger.in > *:nth-child(4){transition-delay:.24s}.js .stagger.in > *:nth-child(5){transition-delay:.32s}.js .stagger.in > *:nth-child(6){transition-delay:.40s}.js .stagger.in > *:nth-child(7){transition-delay:.48s}
+.motion-off *{animation:none!important;transition:none!important}.motion-off .reveal,.motion-off .stagger>*{opacity:1!important;transform:none!important}
+.pulse{animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+
+@media (max-width:980px){
+  .shell{width:min(calc(100% - 24px),var(--max));padding-top:12px}
+  .page{padding:40px 28px;min-height:auto}
+  h1{font-size:48px;letter-spacing:-2.5px}h2{font-size:32px}.lead{font-size:20px}.quote{font-size:25px}
+  .sticky-tools{top:8px;border-radius:18px}.brand{display:none}.toc{justify-content:flex-start}
+  .card,.card.third,.card.eight,.card.four{grid-column:1/-1}
+  .compare{grid-template-columns:1fr}.mid{transform:rotate(90deg);height:40px}
+  .cost-map{grid-template-columns:repeat(2,1fr)}.node::after{display:none}
+  .signal-list{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .shell{width:100%;padding:0}.sticky-tools{margin:8px 10px 12px}.page{border-radius:0;margin-bottom:12px;padding:34px 20px}
+  h1{font-size:39px}.lead{font-size:18px}.quote{font-size:22px}.formula{font-size:20px}.cost-map{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pulse{animation:none}.reveal,.stagger>*{transition:none!important;opacity:1!important;transform:none!important}}
+</style>
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<div class="top-progress"><span id="progress"></span></div>
+<div class="shell">
+  <div class="sticky-tools">
+    <div class="brand">AI算力大基建 · 一家之言</div>
+    <nav class="toc" aria-label="章节导航">
+      <a href="#p0">总论</a><a href="#p1">房地产教训</a><a href="#p2">错过的代价</a><a href="#p3">空方证据</a><a href="#p4">为什么抢算力</a><a href="#p5">算力是什么</a><a href="#p6">相似与不同</a><a href="#p7">证伪条件</a><a href="#p8">结论</a>
+    </nav>
+    <button class="motion-btn" id="motionBtn" type="button">动效：开</button>
+  </div>
+
+  <section class="page" id="p0" style="--wash:rgba(255,217,47,.19)">
+    <div class="eyebrow reveal">2026 · 个人理解框架 · 非投资建议</div>
+    <h1 class="reveal">AI算力大基建，<br>为什么我会想到<span class="hl">中国房地产</span>？</h1>
+    <p class="lead reveal">不是说 GPU 等于房子，也不是说 AI 一定会复制房地产。我的意思更窄：<b>超级建设周期里，需求、稀缺资源、价格、融资与“泡沫争论”会互相强化；而且“看起来合理”的空方理由，可能很多年都不兑现。</b></p>
+    <div class="quote reveal">我现在真正想理解的不是“AI 有没有泡沫”，而是：<span class="red">现在有没有证据说明，算力需求的大周期已经开始反转？</span></div>
+    <div class="meta reveal">
+      <span class="pill">🧭 目的：理解算力周期</span>
+      <span class="pill">🏗️ 参照：房地产大建设</span>
+      <span class="pill">⚠️ 定位：一家之言</span>
+    </div>
+  </section>
+
+  <section class="page" id="p1" style="--wash:rgba(223,75,63,.12)">
+    <div class="eyebrow reveal">01 · 房地产给我的教训</div>
+    <h2 class="reveal">“合理”不一定正确，<span class="hl">泡沫也可以持续很久</span></h2>
+    <div class="grid stagger reveal">
+      <article class="card third"><div class="icon">🗼</div><h3>“北京不能超过东京”</h3><p>2005 年听起来非常合理：收入、发展阶段、城市成熟度都差很多。但“合理的参照系”并不是硬上限。后来事实可以长期偏离这个锚。</p></article>
+      <article class="card third"><div class="icon">🫧</div><h3>“泡沫是铁打的”</h3><p>当年一直有人坚定地喊房地产泡沫。就算最终某些泡沫判断成立，也不代表它会马上破。<span class="red">“是不是泡沫”不是一个时间判断。</span></p></article>
+      <article class="card third"><div class="icon">⏳</div><h3>明智有保质期</h3><p>2007/08 卖房，短期可能躲过调整；但如果从此离场，错过 2008–2021 的更大一段，就很难再叫“长期判断成功”。</p></article>
+      <article class="card full"><div class="kicker">我真正学到的是</div><div class="big-stat">短期正确 ≠ 长期正确</div><p>超级周期最迷惑的地方，是空方会反复阶段性正确。一次调整会强化原有判断，让人更不愿意更新模型。</p></article>
+    </div>
+    <div class="timeline reveal">
+      <div class="tl" style="--accent:var(--blue)"><div class="year">2005 · 估值锚</div><div class="txt">“北京房价不可能超过东京。”——听起来有逻辑，但它不是物理规律。</div></div>
+      <div class="tl" style="--accent:var(--red)"><div class="year">2007–2008 · 第一次“证明自己”</div><div class="txt">调整发生后，卖出的人会觉得自己判断得到验证；但这不等于大周期结束。</div></div>
+      <div class="tl" style="--accent:var(--orange)"><div class="year">之后很多年 · 一年一年错过</div><div class="txt">价格越偏离原来的“合理区间”，越容易认为市场错得更严重，而不是重新检查模型。</div></div>
+      <div class="tl" style="--accent:var(--green)"><div class="year">2021 以后 · 才更像结构变化</div><div class="txt">真正需要看的不是“有人喊泡沫”，而是底层需求、人口、信用和库存机制是否一起变了。</div></div>
+    </div>
+  </section>
+
+  <section class="page" id="p2" style="--wash:rgba(227,138,43,.14)">
+    <div class="eyebrow reveal">02 · 错过的代价，不只是少赚</div>
+    <h2 class="reveal">北京房产让我看到：<span class="hl">稀缺资源会改变人的选择权</span></h2>
+    <div class="compare reveal">
+      <div class="side">
+        <h3>早期锁定</h3>
+        <div class="item"><i class="dot"></i><div><b>房价低时买入</b><span>个人记忆中的数量级：约 3000 元/㎡ 起步。</span></div></div>
+        <div class="item"><i class="dot"></i><div><b>月供可能约 2000</b><span>开始很重，但债务金额相对固定，后来会被收入增长慢慢稀释。</span></div></div>
+        <div class="item"><i class="dot"></i><div><b>锁定城市生活</b><span>住房、通勤、教育、家庭安排，都建立在一个稳定位置上。</span></div></div>
+      </div>
+      <div class="mid">→</div>
+      <div class="side">
+        <h3>长期等待</h3>
+        <div class="item" style="--accent:var(--red)"><i class="dot"></i><div><b>房价可能到 4 万甚至更高</b><span>工资没有同步按十倍上涨，进入门槛被永久抬高。</span></div></div>
+        <div class="item" style="--accent:var(--red)"><i class="dot"></i><div><b>房租反而可能到 7000</b><span>更高现金流支出，却可能住更老、更远、更差的房子。</span></div></div>
+        <div class="item" style="--accent:var(--red)"><i class="dot"></i><div><b>最后失去选择权</b><span>错过的不只是投资收益，而是“还能不能在北京安家”。</span></div></div>
+      </div>
+    </div>
+    <div class="footer-card reveal"><div class="label">真正残酷的地方</div><div class="big">你以为自己只是“等一个更合理的价格”，最后可能等成了：<span class="red">再也没有能力进入这个市场。</span></div></div>
+  </section>
+
+  <section class="page" id="p3" style="--wash:rgba(47,111,199,.12)">
+    <div class="eyebrow reveal">03 · 现在 AI 空方的证据，甚至还没到“鬼城”级别</div>
+    <h2 class="reveal">房地产当年有<span class="hl">肉眼可见的过剩</span>，大周期仍然继续</h2>
+    <div class="grid stagger reveal">
+      <article class="card"><div class="icon">🏚️</div><h3>房地产：空方有“鬼城”</h3><p>当年不是只有估值争论，而是存在新城空置、房子建出来没人住这种非常直观的过剩证据。即便如此，它仍不足以证明北京等核心城市的长期需求马上结束。</p></article>
+      <article class="card"><div class="icon">🖥️</div><h3>AI：目前还没看到同等级证据</h3><p>我目前最在意的是：有没有出现广泛、持续的先进算力闲置，数据中心建好却长期没人用。<span class="green">至少当前讨论里，这种“系统性鬼城”还不是主旋律。</span></p></article>
+      <article class="card full"><div class="kicker">因此我对当前空方理由的评价</div><div class="big-stat">很多是“未来可能过剩”</div><p>“CapEx 太大”“投入太快”“ROI 以后算不过来”都值得警惕，但它们和“已经看到了大规模利用率崩塌”不是同一个证据等级。</p></article>
+    </div>
+    <div class="quote reveal">当年房地产空方可以说：“我带你去看鬼城。”<br>今天很多 AI 空方更多是在说：“<span class="red">按我的模型算，你以后不可能赚回来。</span>”</div>
+  </section>
+
+  <section class="page" id="p4" style="--wash:rgba(255,217,47,.17)">
+    <div class="eyebrow reveal">04 · 为什么大厂现在愿意“抢算力”</div>
+    <h2 class="reveal">可能不是不计成本，而是<span class="hl">少买的代价比多买更大</span></h2>
+    <div class="grid stagger reveal">
+      <article class="card third"><div class="icon">🔒</div><h3>锁定未来供给</h3><p>如果几年后需求爆发，再想买不一定只是“贵 20%”，也可能是电、机房、芯片、网络、审批都排不上。</p></article>
+      <article class="card third"><div class="icon">🏁</div><h3>防止模型落后一代</h3><p>如果竞争对手有算力、自己没有，损失可能不是几台服务器，而是模型、产品、用户和生态整体慢一代。</p></article>
+      <article class="card third"><div class="icon">♻️</div><h3>过剩还有处置空间</h3><p>买多了可以降价使用、转做推理、出租或转移工作负载；买少了却可能在关键窗口无法补货。</p></article>
+      <article class="card full"><div class="kicker">这和房地产最像的一点</div><div class="big-stat">等待，本身也有价格</div><p>北京房子当年嫌贵不买，后来面对的是“价更高 + 选择更少”。AI 大厂今天可能也是在提前购买未来的<span class="red">战略选择权</span>。</p></article>
+    </div>
+  </section>
+
+  <section class="page" id="p5" style="--wash:rgba(117,86,185,.13)">
+    <div class="eyebrow reveal">05 · “算力”不能只等于 GPU</div>
+    <h2 class="reveal">真正稀缺的是：<span class="hl">能实际运行的可用算力</span></h2>
+    <p class="lead reveal">芯片迭代很快，这一点和房地产完全不同。但如果把视角从“买芯片”换成“交付一座能稳定跑 AI 的系统”，事情就变了。</p>
+    <div class="cost-map stagger reveal">
+      <div class="node"><div class="emoji">🧠</div><b>芯片 / HBM</b><small>GPU、先进制程、封装、显存</small></div>
+      <div class="node"><div class="emoji">⚡</div><b>电力</b><small>发电、购电、长期稳定供能</small></div>
+      <div class="node"><div class="emoji">🔌</div><b>并网</b><small>变电站、输电线、接入容量</small></div>
+      <div class="node"><div class="emoji">❄️</div><b>冷却</b><small>液冷、水、热管理与能效</small></div>
+      <div class="node"><div class="emoji">🌐</div><b>网络</b><small>交换、光纤、互联与低时延</small></div>
+      <div class="node"><div class="emoji">📍</div><b>位置 / 土地</b><small>有电、有网、能审批、可扩容</small></div>
+      <div class="node"><div class="emoji">🧾</div><b>审批 / 融资</b><small>许可、建设周期、长期资本</small></div>
+    </div>
+    <div class="formula reveal pulse">可用算力 ≈ 芯片 × 电力 × 并网 × 冷却 × 网络 × 位置 × 审批</div>
+    <div class="grid reveal">
+      <article class="card"><h3>芯片会折旧，但基础设施寿命更长</h3><p>GPU 两三年一代，但电网、变电站、输电、数据中心位置、网络骨架的建设周期更长，也更难在需求突然出现后临时补齐。</p></article>
+      <article class="card"><h3>未来“成本大头”未必永远是芯片</h3><p>现在芯片当然仍然重要，但如果电和位置越来越稀缺，真正决定边际成本与交付速度的，可能逐渐变成电力和基础设施。<span class="blue">这部分目前只能作为假设观察。</span></p></article>
+    </div>
+    <div class="footer-card reveal"><div class="label">我现在更愿意用的说法</div><div class="big">GPU 更像可以不断更换的设备；长期稀缺资产可能是<span class="hl">“通电的算力地产”</span>——一个能持续获得电、网络、冷却并扩容的位置。</div></div>
+  </section>
+
+  <section class="page compact" id="p6" style="--wash:rgba(47,138,102,.13)">
+    <div class="eyebrow reveal">06 · 相似之处与不能硬套的地方</div>
+    <h2 class="reveal">这个类比有用，但<span class="hl">不能把 AI 直接当房地产</span></h2>
+    <div class="compare reveal">
+      <div class="side">
+        <h3>相似之处</h3>
+        <div class="item"><i class="dot"></i><div><b>稀缺资源 + 长建设周期</b><span>房产有核心位置；AI 有电、并网、数据中心位置和供应链。</span></div></div>
+        <div class="item"><i class="dot"></i><div><b>怀疑会伴随整个上升期</b><span>每次调整都可能让空方阶段性“证明自己”。</span></div></div>
+        <div class="item"><i class="dot"></i><div><b>等待可能永久抬高进入门槛</b><span>以后不一定更便宜，也可能更贵、更难拿。</span></div></div>
+        <div class="item"><i class="dot"></i><div><b>局部过剩不等于大周期结束</b><span>鬼城不等于北京需求结束；未来某个 AI 项目失败也不等于全球算力见顶。</span></div></div>
+      </div>
+      <div class="mid">≠</div>
+      <div class="side">
+        <h3>不同之处</h3>
+        <div class="item" style="--accent:var(--red)"><i class="dot"></i><div><b>GPU 是快速迭代资产</b><span>房子位置不会两年换代，芯片会。</span></div></div>
+        <div class="item" style="--accent:var(--red)"><i class="dot"></i><div><b>算力便宜会反向创造需求</b><span>房价降一半不会让一个人住十套房；算力降价可能催生更多 Agent、视频、机器人和科研使用。</span></div></div>
+        <div class="item" style="--accent:var(--red)"><i class="dot"></i><div><b>AI 的需求上限更难估</b><span>“一个人到底需要多少算力”目前没有稳定答案。</span></div></div>
+        <div class="item" style="--accent:var(--red)"><i class="dot"></i><div><b>AI 可能经历更频繁的产能错配</b><span>芯片更新快，技术路线变化快，所以阶段性过剩几乎不可避免。</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page compact" id="p7" style="--wash:rgba(223,75,63,.11)">
+    <div class="eyebrow reveal">07 · 什么情况会让我真正转向</div>
+    <h2 class="reveal">我不会因为一次下跌改判断，<span class="hl">我要看需求机制是否断了</span></h2>
+    <div class="signal-list stagger reveal">
+      <div class="signal"><div class="snum">1</div><div><b>先进算力系统性闲置</b><span>大规模、持续多年，不是某个云厂商或某一代 GPU 的局部错配。</span></div></div>
+      <div class="signal"><div class="snum">2</div><div><b>利用率与租赁价格同时崩</b><span>而且降价也无法重新刺激足够的新增使用。</span></div></div>
+      <div class="signal"><div class="snum">3</div><div><b>模型能力提升明显停滞</b><span>继续增加算力不再明显带来更强能力或更有价值的产品。</span></div></div>
+      <div class="signal"><div class="snum">4</div><div><b>Token / Agent 使用量停止增长</b><span>应用层需求不能接棒，推理量不再扩大。</span></div></div>
+      <div class="signal"><div class="snum">5</div><div><b>企业 AI 支出长期不增长</b><span>AI 变成“有趣但不值钱”，无法形成持续现金流。</span></div></div>
+      <div class="signal"><div class="snum">6</div><div><b>大厂连续削减绝对 CapEx</b><span>不是“增速下降”，而是多年取消项目、减容量、释放已锁定资源。</span></div></div>
+    </div>
+    <div class="warn reveal">哪怕未来真的出现“AI 鬼城”——某些数据中心利用率低、某代 GPU 价格暴跌——我也只会先把它看作“供需错配”，而不是自动等同于 AI 的“2021”。</div>
+  </section>
+
+  <section class="page" id="p8" style="--wash:rgba(255,217,47,.22)">
+    <div class="eyebrow reveal">08 · 最后的结论</div>
+    <h2 class="reveal">泡沫可以是真的，<span class="hl">趋势也可以是真的</span></h2>
+    <div class="grid stagger reveal">
+      <article class="card third"><div class="icon">🫧</div><h3>我不否认泡沫</h3><p>某些公司估值、某些数据中心项目、某些融资结构，完全可能过热甚至失败。</p></article>
+      <article class="card third"><div class="icon">📈</div><h3>但泡沫 ≠ 周期结束</h3><p>房地产最大的教训就是：泡沫争论可以持续十几年，中间还会出现多次“看起来终于证明了”。</p></article>
+      <article class="card third"><div class="icon">🧩</div><h3>现在缺的是硬证据</h3><p>我更关心系统性闲置、需求停滞、模型收益下降，而不是单纯“数字太大”“以前没这么投”。</p></article>
+    </div>
+    <div class="quote reveal">目前我的倾向：<br><span class="green">AI 大基建更像一个仍在展开的长期基础设施周期，</span><br>而不是一个已经有明确“鬼城级过剩”证据的末期泡沫。</div>
+    <div class="footer-card reveal"><div class="label">一句话记住</div><div class="big"><span class="hl">不要问一个观点“听起来多合理”</span>，要问它背后有没有一个必须成立的硬约束。没有硬约束的“合理”，可能一年一年地过期。</div></div>
+    <div class="warn reveal">这只是我为了理解当前算力大基建的一套个人框架。核心用途是帮助我区分：价格泡沫、阶段性过剩、与真正的长期需求反转。它不是事实完备的行业报告，也不是投资建议。</div>
+    <div class="footer">AI算力大基建 · 个人理解记录 · 2026</div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const progress = document.getElementById('progress');
+  const sections = [...document.querySelectorAll('.page')];
+  const links = [...document.querySelectorAll('.toc a')];
+  const motionBtn = document.getElementById('motionBtn');
+
+  const setProgress = () => {
+    const h = document.documentElement.scrollHeight - innerHeight;
+    const ratio = h > 0 ? scrollY / h : 0;
+    progress.style.width = `${Math.min(100, Math.max(0, ratio * 100))}%`;
+  };
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('in');
+    });
+  }, {threshold:.12, rootMargin:'0px 0px -5% 0px'});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const navIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${e.target.id}`));
+    });
+  }, {threshold:.42});
+  sections.forEach(s => navIO.observe(s));
+
+  let motionOn = true;
+  motionBtn.addEventListener('click', () => {
+    motionOn = !motionOn;
+    document.body.classList.toggle('motion-off', !motionOn);
+    motionBtn.textContent = `动效：${motionOn ? '开' : '关'}`;
+  });
+
+  addEventListener('scroll', setProgress, {passive:true});
+  setProgress();
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.page:first-of-type .reveal').forEach(el => el.classList.add('in'));
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A/B 双素材口播工作流 · 学习笔记</title>
+<style>
+  :root{
+    box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+    --ink:#20242b;--soft:#5e6773;--faint:#8b95a1;--line:#e6e9ee;
+    --paper:#ffffff;--page:#eef0f4;
+    --codex:#1f3a5f;--scene:#2f8f5b;--whisper:#2170c4;--remotion:#7b4bd4;--music:#9aa3ad;
+    --tint-codex:#eef3fa;--tint-scene:#eef7f1;--tint-whisper:#eef4fc;--tint-remotion:#f4eefc;
+    --amber:#d98a0b;--tint-amber:#fdf6e8;
+    --code-bg:#1c2230;--code-ink:#d7dce6;
+  }
+  *{box-sizing:border-box}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0f141a}}
+  :root[data-theme="dark"]{--page:#0f141a}
+  html,body{margin:0;padding:0}
+  body{background:var(--page);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;padding:24px 16px 48px;line-height:1.6}
+  .wrap{max-width:860px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:18px;
+    overflow:hidden;box-shadow:0 10px 40px rgba(20,30,50,.10)}
+  .pad{padding:30px 34px}
+  /* header */
+  .hdr{background:linear-gradient(135deg,#1f3a5f,#2a5285);color:#fff;padding:30px 34px 26px}
+  .hdr .kick{font-size:12px;letter-spacing:2px;opacity:.8;font-weight:700}
+  .hdr h1{margin:6px 0 10px;font-size:27px;font-weight:900;line-height:1.25}
+  .hdr .one{font-size:14px;opacity:.95;line-height:1.6;background:rgba(255,255,255,.1);border-radius:10px;padding:12px 14px}
+  .hdr .one b{color:#ffd86b}
+  h2{font-size:19px;font-weight:800;margin:0 0 4px;display:flex;align-items:center;gap:9px}
+  h2 .b{width:5px;height:19px;border-radius:3px;background:var(--codex)}
+  .sec-sub{color:var(--faint);font-size:12.5px;margin:0 0 16px}
+  section{border-top:1px solid var(--line)}
+  /* A/B cards */
+  .ab{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .abc{border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px}
+  .abc .tag{font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;display:inline-block;margin-bottom:8px}
+  .abc.a .tag{background:var(--tint-codex);color:var(--codex)}
+  .abc.b .tag{background:var(--tint-remotion);color:var(--remotion)}
+  .abc h3{margin:0 0 6px;font-size:15px;font-weight:800}
+  .abc p{margin:0;font-size:12.5px;color:var(--soft);line-height:1.55}
+  /* tool cards */
+  .tools{display:flex;flex-direction:column;gap:13px}
+  .tool{border:1px solid var(--line);border-left-width:4px;border-radius:11px;padding:14px 16px}
+  .tool.s{border-left-color:var(--scene)} .tool.w{border-left-color:var(--whisper)}
+  .tool.r{border-left-color:var(--remotion)} .tool.c{border-left-color:var(--codex)}
+  .tool .th{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .tool .nm{font-size:16px;font-weight:900}
+  .tool.s .nm{color:var(--scene)} .tool.w .nm{color:var(--whisper)}
+  .tool.r .nm{color:var(--remotion)} .tool.c .nm{color:var(--codex)}
+  .tool .role{font-size:12.5px;font-weight:700;color:var(--ink)}
+  .tool .io{font-size:12px;color:var(--soft);margin:3px 0 0}
+  .tool .io code{background:var(--page);padding:1px 6px;border-radius:5px;font-size:11.5px}
+  .tool .eg{margin-top:8px;font-size:12px;color:var(--faint);line-height:1.5}
+  /* pipeline */
+  .pipe{background:var(--code-bg);border-radius:12px;padding:20px 18px;color:var(--code-ink);
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.5;overflow-x:auto}
+  .flowbox{display:flex;flex-direction:column;gap:0;align-items:center}
+  .fb{border-radius:8px;padding:9px 14px;font-weight:700;text-align:center;color:#fff;min-width:60%;font-size:13px}
+  .fb small{display:block;font-weight:400;opacity:.85;font-size:11px;margin-top:1px;font-family:-apple-system,"PingFang SC",sans-serif}
+  .fa{color:var(--faint);font-size:16px;margin:6px 0;font-weight:700}
+  .fa small{font-size:11px;opacity:.9}
+  .two{display:flex;gap:12px;width:100%;justify-content:center;flex-wrap:wrap}
+  .two .col{flex:1 1 44%;display:flex;flex-direction:column;align-items:center;min-width:180px}
+  /* layout chips */
+  .chips{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .chip{background:var(--tint-remotion);border:1px solid #e7dcf7;border-radius:9px;padding:9px 12px;font-size:12.5px}
+  .chip b{color:var(--remotion)}
+  /* decouple */
+  .stages{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px}
+  .stage{border:1px solid var(--line);border-radius:11px;padding:14px;text-align:center}
+  .stage .n{width:24px;height:24px;border-radius:50%;background:var(--codex);color:#fff;font-weight:800;font-size:12px;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+  .stage h4{margin:0 0 4px;font-size:13px;font-weight:800}
+  .stage p{margin:0;font-size:11.5px;color:var(--soft)}
+  /* generalize */
+  .gen{background:var(--tint-scene);border-radius:11px;padding:14px 16px;font-size:13px;color:var(--ink);line-height:1.6}
+  .gen b{color:var(--scene)}
+  .gen .ex{color:var(--soft);font-size:12px;margin-top:6px}
+  /* callout */
+  .key{background:var(--tint-amber);border:1px solid #f1e2bf;border-radius:12px;padding:16px 18px;margin:0}
+  .key .lab{font-size:12px;font-weight:800;color:var(--amber);margin-bottom:6px}
+  .key p{margin:0;font-size:14px;font-weight:600;line-height:1.65}
+  /* checklist */
+  .ck{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:9px}
+  .ck li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink)}
+  .ck li::before{content:"?";flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--tint-codex);
+    color:var(--codex);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  @media (max-width:640px){
+    .pad{padding:22px 18px}.hdr{padding:24px 18px}
+    .ab,.chips,.stages{grid-template-columns:1fr}
+    .hdr h1{font-size:22px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hdr">
+      <div class="kick">学 习 笔 记 · 个人视频生产模型</div>
+      <h1>A/B 双素材口播工作流</h1>
+      <div class="one">以后拍口播,<b>不在拍摄阶段完成视频</b>:只拍一条完整「讲述」(A)+ 一条或多条「视觉素材」(B)。Codex 理解两边内容并建立对应关系,PySceneDetect 拆镜头,WhisperX 定位口播,Remotion 把 B-roll 用不同动态版式插入,最后加音乐成片。</div>
+    </div>
+
+    <!-- 核心:两类素材 -->
+    <section><div class="pad">
+      <h2><span class="b"></span>核心:只有两类素材</h2>
+      <p class="sec-sub">拍摄阶段极简 —— 口播归口播,素材归素材。</p>
+      <div class="ab">
+        <div class="abc a">
+          <span class="tag">A 视频 · Talking Head</span>
+          <h3>主视频(叙事主轴)</h3>
+          <p>坐在电脑前对着镜头完整讲述,依次介绍第一盆、第二盆、第三盆。提供人像、声音和完整叙事。</p>
+        </div>
+        <div class="abc b">
+          <span class="tag">B 视频 · B-roll Reel</span>
+          <h3>素材视频(视觉补充)</h3>
+          <p>不用边讲边拍。专门拍:第一盆几秒→暂停→第二盆→暂停→第三盆。得到一条含多个独立镜头的素材。</p>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- 四件套 -->
+    <section><div class="pad">
+      <h2><span class="b"></span>四件套:各管一件事</h2>
+      <p class="sec-sub">三个处理能力 + 一个总控。记住每个「只负责什么」,不要混。</p>
+      <div class="tools">
+        <div class="tool s">
+          <div class="th"><span class="nm">PySceneDetect</span><span class="role">拆素材 —— B 视频里有哪些独立镜头?</span></div>
+          <div class="io">输入 <code>B 视频</code> → 输出 <code>Scene 01 / 02 / 03</code></div>
+          <div class="eg">例:15 秒 B-roll → 第一盆 / 第二盆 / 第三盆。它不管你说了什么,也不管最终放哪。</div>
+        </div>
+        <div class="tool w">
+          <div class="th"><span class="nm">WhisperX</span><span class="role">定位口播 —— A 视频什么时候讲到哪盆?</span></div>
+          <div class="io">输入 <code>A 视频</code> → 输出 <code>文字 + 时间戳</code></div>
+          <div class="eg">例:12.3s「第一盆是…」/ 25.7s「第二盆是…」/ 39.1s「第三盆…」。把语言变成可剪辑的时间数据。</div>
+        </div>
+        <div class="tool r">
+          <div class="th"><span class="nm">Remotion</span><span class="role">决定怎么呈现 —— B-roll 插进来画面长啥样</span></div>
+          <div class="io">输入 <code>broll_plan</code> → 输出 <code>布局 + 动画 + 文字</code></div>
+          <div class="eg">不是简单特效插件,而是你的「程序化视频导演 + 版式系统」,以后能固化成个人风格。</div>
+        </div>
+        <div class="tool c">
+          <div class="th"><span class="nm">Codex</span><span class="role">总控 —— 不是第四种媒体能力,是指挥</span></div>
+          <div class="io">调度:PySceneDetect · WhisperX · 建立 Scene 对应 · 生成 broll_plan · 调 Remotion · 调 FFmpeg · 输出成片</div>
+          <div class="eg">你最终只需对它说:用 A 当主视频、B 当 B-roll,自动拆 B、分析 A,讲到对应花时插入对应 B-roll,用我的 Remotion 风格组件,最后加背景音乐。</div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- 流程图 -->
+    <section><div class="pad">
+      <h2><span class="b"></span>完整流程</h2>
+      <p class="sec-sub">两条输入并行处理 → 匹配 → 计划 → 呈现 → 成片。</p>
+      <div class="pipe">
+        <div class="flowbox">
+          <div class="two">
+            <div class="col">
+              <div class="fb" style="background:var(--codex)">A 视频<small>Talking Head</small></div>
+              <div class="fa">↓ WhisperX</div>
+              <div class="fb" style="background:var(--whisper)">什么时候讲了什么<small>文字 + 时间戳</small></div>
+            </div>
+            <div class="col">
+              <div class="fb" style="background:var(--remotion)">B 视频<small>B-roll Reel</small></div>
+              <div class="fa">↓ PySceneDetect</div>
+              <div class="fb" style="background:var(--scene)">Scene 01 / 02 / 03<small>独立镜头</small></div>
+            </div>
+          </div>
+          <div class="fa">↓ ↓ &nbsp; MATCH(Codex 建立对应)</div>
+          <div class="fb" style="background:#4a515a">broll_plan<small>介绍第一盆→插 Scene 01 …</small></div>
+          <div class="fa">↓ Remotion</div>
+          <div class="fb" style="background:var(--remotion)">布局 + 动画 + 文字</div>
+          <div class="fa">↓ + 背景音乐(FFmpeg)</div>
+          <div class="fb" style="background:var(--scene)">最终成片 ✅</div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- Remotion 版式库 -->
+    <section><div class="pad">
+      <h2><span class="b"></span>Remotion 版式库(个人风格可固化)</h2>
+      <p class="sec-sub">同一段 B-roll,换版式就换观感 —— 这层积累起来就是你的导演语言。</p>
+      <div class="chips">
+        <div class="chip"><b>Fullscreen</b> 全屏出现(第一盆)</div>
+        <div class="chip"><b>右侧 1/3</b> 占屏一角(第二盆)</div>
+        <div class="chip"><b>Split 50</b> 半屏分割(第三盆)</div>
+        <div class="chip"><b>Zoom</b> 放大强调重点细节</div>
+        <div class="chip"><b>PiP</b> 画中画补充画面</div>
+        <div class="chip"><b>Floating Card</b> 卡片滑入(产品截图)</div>
+        <div class="chip"><b>Push</b> 推入切换</div>
+        <div class="chip"><b>Freeze + Callout</b> 定格 + 标注</div>
+      </div>
+    </div></section>
+
+    <!-- 核心洞察 -->
+    <section><div class="pad">
+      <h2><span class="b"></span>核心洞察:拍摄与剪辑解耦</h2>
+      <p class="sec-sub">这是今天真正想通的一点 —— 注意力被拆开,每个阶段只做一件事。</p>
+      <div class="stages">
+        <div class="stage"><div class="n">1</div><h4>只负责讲</h4><p>口播阶段:只管讲清楚,不想镜头/特效。</p></div>
+        <div class="stage"><div class="n">2</div><h4>只负责拍素材</h4><p>B-roll 阶段:只管拍好看。</p></div>
+        <div class="stage"><div class="n">3</div><h4>机器负责组合</h4><p>Codex + Remotion 重新组装。</p></div>
+      </div>
+      <div class="key" style="margin-top:16px">
+        <div class="lab">⭐ 为什么对你(观点 / 解释 / 财经技术类内容)特别合适</div>
+        <p>以前拍视频要同时想「说什么 + 要不要拍花 + 怎么插 + 镜头够不够 + 要不要重拍」,全混在一起。现在三段解耦,每段心智负担骤降。</p>
+      </div>
+    </div></section>
+
+    <!-- 泛化 -->
+    <section><div class="pad">
+      <h2><span class="b"></span>「三盆花」只是最小模型</h2>
+      <p class="sec-sub">题材换了,生产方法不用换 —— 结构完全一样。</p>
+      <div class="gen">
+        <b>同一结构可复用于:</b>三个显示器 / 三个锅 / 三款手机 / 三个股票 App / 三张财报 / 三家公司 / 三个数据中心镜头……
+        <div class="ex">甚至一条 10 分钟财经口播:A = 你讲 10 分钟;B = GPU / HBM / 数据中心 / 晶圆厂 / 黄仁勋 / 财报截图 / 股票走势图 / 产品照片。还是同一个结构。</div>
+      </div>
+    </div></section>
+
+    <!-- 自测 -->
+    <section><div class="pad">
+      <h2><span class="b"></span>复习自测(先盖住答案自己答)</h2>
+      <p class="sec-sub">能顺畅答出这 5 条,这套工作流就记牢了。</p>
+      <ul class="ck">
+        <li>A 视频和 B 视频各自只负责什么?为什么要分开拍?</li>
+        <li>PySceneDetect、WhisperX 各自的输入和输出是什么?谁管「镜头」,谁管「时间」?</li>
+        <li>Codex 为什么不是「第四种媒体处理能力」?它的真实角色是什么?</li>
+        <li>Remotion 为什么说它更像「导演/版式系统」而不是「特效插件」?举 3 个版式。</li>
+        <li>把整套工作流从输入到成片的流程,用一句话复述出来。</li>
+      </ul>
+    </div></section>
+  </div>
+</body>
+</html>

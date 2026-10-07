@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>半导体板块：内存 vs 连接 轮动拆解</title>
+<style>
+  :root{
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    --blue:#1565C0;
+    --blue-deep:#0B3C73;
+    --navy:#123a6b;
+    --up:#2E9E5B;
+    --down:#D64545;
+    --stance:#E8920C;
+    --ink:#1f2733;
+    --ink-soft:#5b6775;
+    --line:#e6eaef;
+    --card:#ffffff;
+    --sheet:#ffffff;
+    --page:#eef1f5;
+    --tint-blue:#f2f7fd;
+    --tint-green:#eef7f1;
+    --tint-amber:#fff7e8;
+    --tint-red:#fdf1f1;
+    --tint-gray:#f4f6f8;
+  }
+  *{box-sizing:border-box}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --page:#0f141a; } }
+  :root[data-theme="dark"]{ --page:#0f141a; }
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
+    color:var(--ink);-webkit-font-smoothing:antialiased;padding:24px 16px 40px;
+  }
+  .sheet{max-width:1180px;margin:0 auto;background:var(--sheet);border-radius:18px;overflow:hidden;
+    box-shadow:0 10px 40px rgba(18,58,107,.12);border:1px solid var(--line)}
+  /* header */
+  .hd{display:flex;align-items:center;gap:18px;padding:24px 34px 18px;flex-wrap:wrap}
+  .hd .mark{width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,var(--blue),#0d8a8a);
+    display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 auto}
+  .hd .ttl{flex:1 1 320px}
+  .hd h1{margin:0;font-size:25px;font-weight:800;color:var(--blue-deep);line-height:1.25}
+  .hd .meta{margin-top:5px;font-size:12.5px;color:var(--ink-soft)}
+  .hd .meta b{color:var(--stance)}
+  /* banner */
+  .banner{margin:0 34px;background:linear-gradient(90deg,var(--navy),#1b4a86);border-radius:12px;color:#fff;
+    display:flex;align-items:center;gap:16px;padding:15px 22px;justify-content:space-between;flex-wrap:wrap}
+  .banner .ico{width:40px;height:40px;border-radius:9px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto}
+  .banner .txt{flex:1 1 auto;text-align:center;font-size:19px;font-weight:800}
+  .banner .txt b{color:#ffd24d}
+  .banner .fy{flex:0 0 auto;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:9px;padding:7px 13px;text-align:right;line-height:1.3}
+  .banner .fy strong{font-size:14px;display:block}
+  .banner .fy small{font-size:11px;opacity:.85}
+  /* grid */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:22px 34px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .sechd{display:flex;align-items:center;gap:10px;margin:0 0 15px}
+  .sechd .n{width:26px;height:26px;border-radius:7px;background:var(--blue);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .sechd h2{margin:0;font-size:17px;font-weight:800}
+  .sechd .u{font-size:11.5px;color:var(--ink-soft);font-weight:600}
+  /* bars */
+  .grp{font-size:12.5px;font-weight:800;margin:4px 0 9px;display:flex;align-items:center;gap:7px}
+  .grp.u{color:var(--up)} .grp.d{color:var(--down)}
+  .brow{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .brow .nm{flex:0 0 150px;font-size:12.5px;font-weight:600}
+  .brow .nm small{color:var(--ink-soft);font-weight:500}
+  .brow .track{flex:1 1 auto;height:19px;background:var(--tint-gray);border-radius:5px;overflow:hidden}
+  .brow .fill{height:100%;border-radius:5px}
+  .brow .v{flex:0 0 52px;text-align:right;font-weight:800;font-size:13px}
+  .u .fill,.v.u{background:var(--up)} .v.u{background:none;color:var(--up)}
+  .d .fill,.v.d{background:var(--down)} .v.d{background:none;color:var(--down)}
+  .divider{height:1px;background:var(--line);margin:13px 0}
+  /* news list */
+  .news{display:flex;flex-direction:column;gap:11px}
+  .ni{border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+  .ni .top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .ni h3{margin:0;font-size:13.5px;font-weight:800;flex:1 1 auto}
+  .tag{font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .tag.noise{background:var(--tint-gray);color:var(--ink-soft)}
+  .tag.good{background:var(--tint-green);color:var(--up)}
+  .tag.core{background:var(--tint-red);color:var(--down)}
+  .ni p{margin:0;font-size:12px;color:var(--ink-soft);line-height:1.5}
+  .ni p b{color:var(--ink)}
+  /* metrics */
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .metric{background:var(--tint-blue);border:1px solid #d9e8f8;border-radius:12px;padding:15px 10px;text-align:center}
+  .metric .t{font-size:12px;font-weight:700;margin-bottom:5px;color:var(--ink)}
+  .metric .big{font-size:26px;font-weight:900;color:var(--blue);line-height:1.05}
+  .metric .sub{font-size:10.5px;color:var(--ink-soft);margin-top:7px;line-height:1.35}
+  .foot-note{margin-top:13px;background:var(--tint-gray);border-radius:10px;padding:10px 13px;font-size:11.5px;color:var(--ink-soft);line-height:1.45}
+  .foot-note b{color:var(--ink)}
+  /* thesis (stance) */
+  .thesis{display:flex;flex-direction:column;gap:10px}
+  .th{display:flex;gap:11px;align-items:flex-start;border-radius:11px;padding:12px 13px;background:var(--tint-amber);border:1px solid #f3e2c0}
+  .th .num{width:22px;height:22px;border-radius:50%;background:var(--stance);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px}
+  .th p{margin:0;font-size:12px;color:var(--ink);line-height:1.5}
+  .th p b{color:#9a5a05}
+  /* verdict band */
+  .verdict{margin:0 34px 22px;background:linear-gradient(135deg,#10233f,#1d3f6e);color:#fff;border-radius:14px;padding:20px 24px}
+  .verdict .vh{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;margin-bottom:9px}
+  .verdict .vh .d{width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .verdict p{margin:0;font-size:13px;line-height:1.65;color:#e8eef7}
+  .verdict p b{color:#ffd24d}
+  /* footer */
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);background:#fafbfc}
+  .strip .it{padding:17px 22px;display:flex;gap:11px;align-items:flex-start;border-right:1px solid var(--line)}
+  .strip .it:last-child{border-right:none}
+  .strip .em{font-size:20px;flex:0 0 auto;line-height:1}
+  .strip h4{margin:0 0 4px;font-size:13px;font-weight:800}
+  .strip p{margin:0;font-size:11.5px;color:var(--ink-soft);line-height:1.45}
+  .strip .watch h4{color:var(--blue)}
+  .strip .risk h4{color:var(--down)}
+  .strip .verify h4{color:var(--up)}
+  @media (max-width:780px){
+    .grid{grid-template-columns:1fr;padding:18px}
+    .hd,.banner{padding:18px}.banner{margin:0 16px}
+    .verdict{margin:0 16px 18px}
+    .strip{grid-template-columns:1fr}.strip .it{border-right:none;border-bottom:1px solid var(--line)}
+    .brow .nm{flex-basis:120px}
+    .metric .big{font-size:22px}
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <!-- header -->
+    <div class="hd">
+      <div class="mark">🧭</div>
+      <div class="ttl">
+        <h1>半导体板块：AI 交易正从「内存」轮动到「连接」？</h1>
+        <div class="meta">来源：Market Signal / Kevin Gerrity 每日点评 · 立场 <b>⚠ 明显内存多头（事实与立场需切开看）</b></div>
+      </div>
+    </div>
+
+    <!-- banner -->
+    <div class="banner">
+      <div class="ico">⚡</div>
+      <div class="txt">核心问题：下一块 AI 美元，流向哪个<b>物理瓶颈</b>？</div>
+      <div class="fy"><strong>当日盘面</strong><small>2026年10月7日</small></div>
+    </div>
+
+    <!-- row 1 -->
+    <div class="grid">
+      <!-- section 1: 盘面撕裂 -->
+      <div class="card">
+        <div class="sechd"><div class="n">1</div><h2>当日盘面撕裂</h2><span class="u">（单日涨跌幅）</span></div>
+
+        <div class="grp u">▲ 连接 / 定制芯片 —— 暴涨</div>
+        <div class="brow u"><div class="nm">Astera Labs <small>ALAB</small></div><div class="track"><div class="fill" style="width:83%"></div></div><div class="v u">+7.5%</div></div>
+        <div class="brow u"><div class="nm">AAOI</div><div class="track"><div class="fill" style="width:78%"></div></div><div class="v u">+7%</div></div>
+        <div class="brow u"><div class="nm">Marvell <small>MRVL</small></div><div class="track"><div class="fill" style="width:67%"></div></div><div class="v u">+6%</div></div>
+        <div class="brow u"><div class="nm">康宁 <small>Corning</small></div><div class="track"><div class="fill" style="width:67%"></div></div><div class="v u">+6%</div></div>
+        <div class="brow u"><div class="nm">Arista <small>ANET</small></div><div class="track"><div class="fill" style="width:44%"></div></div><div class="v u">+4%</div></div>
+
+        <div class="divider"></div>
+
+        <div class="grp d">▼ 内存 / 存储 —— 被砸</div>
+        <div class="brow d"><div class="nm">希捷 <small>STX</small></div><div class="track"><div class="fill" style="width:100%"></div></div><div class="v d">−9%</div></div>
+        <div class="brow d"><div class="nm">西部数据 <small>WDC</small></div><div class="track"><div class="fill" style="width:78%"></div></div><div class="v d">−7%</div></div>
+        <div class="brow d"><div class="nm">SK海力士 <small>SKHY</small></div><div class="track"><div class="fill" style="width:72%"></div></div><div class="v d">−6.5%</div></div>
+        <div class="brow d"><div class="nm">美光 <small>MU</small></div><div class="track"><div class="fill" style="width:19%"></div></div><div class="v d">−1.7%</div></div>
+      </div>
+
+      <!-- section 2: 三条消息 -->
+      <div class="card">
+        <div class="sechd"><div class="n">2</div><h2>拖累内存的三条消息</h2><span class="u">（分清噪音与实质）</span></div>
+        <div class="news">
+          <div class="ni">
+            <div class="top"><h3>HDD 磁头之争</h3><span class="tag noise">板块情绪 · 噪音</span></div>
+            <p>希捷 vs 东芝竞购 <b>TDK 磁头业务</b>（TDK 近乎垄断全行业磁头）；叠加东芝 <b>$4 亿</b>扩产、FY27 产能翻倍、份额目标 10%→30%。砸的是 HDD 两家（STX/WDC），<b>与内存芯片基本面关系不大</b>。</p>
+          </div>
+          <div class="ni">
+            <div class="top"><h3>美光 / Netlist 和解</h3><span class="tag good">清障 · 利好</span></div>
+            <p><b>$6 亿</b>分 5 年付（$30M/季，至 2031Q3），清掉专利诉讼悬顶。对单季几十亿美元自由现金流的美光，<b>毛毛雨级别</b>。</p>
+          </div>
+          <div class="ni">
+            <div class="top"><h3>三星 Q3 预报（周四 10/8）</h3><span class="tag core">真正的压力源</span></div>
+            <p>预期营业利润同比约 <b>9 倍</b>暴增，<b>但芯片毛利率或环比持平</b> → 市场担心「内存涨价动能见顶」。<b>这才是砸整个内存板块的核心。</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- row 2 -->
+    <div class="grid" style="padding-top:0">
+      <!-- section 3: 核实数字 -->
+      <div class="card">
+        <div class="sechd"><div class="n">3</div><h2>关键数字</h2><span class="u">（✅ 已联网核实）</span></div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="t">Marvell FY2031 目标</div>
+            <div class="big">$700–900 亿</div>
+            <div class="sub">中值 $800 亿<br>vs 市场共识 ~$465 亿</div>
+          </div>
+          <div class="metric">
+            <div class="t">Marvell FY2028 目标</div>
+            <div class="big">~$200 亿</div>
+            <div class="sub">上调自 $180 亿<br>vs 共识 $182 亿</div>
+          </div>
+          <div class="metric">
+            <div class="t">美光/Netlist 和解</div>
+            <div class="big">$6 亿</div>
+            <div class="sub">分 5 年付清<br>$120M/年</div>
+          </div>
+        </div>
+        <div class="foot-note">催化剂是 10/6 Marvell 投资者日：FY31 为<b>首次</b>给出该年度指引，中值近市场预期两倍（含谷歌定制芯片大单）。另：<b>美光股价 ~$1065、半年 +218%</b>，视频里"MU 一千多美元"是真实的，并非字幕错乱。</div>
+      </div>
+
+      <!-- section 4: 博主立场 -->
+      <div class="card">
+        <div class="sechd"><div class="n">4</div><h2>博主立场</h2><span class="u">（⚠ 内存多头叙事，需与事实切开）</span></div>
+        <div class="thesis">
+          <div class="th"><div class="num">①</div><p>内存是「AI 物理瓶颈的<b>震中</b>」，这波下跌属 <b>overreaction</b>，终会修复。</p></div>
+          <div class="th"><div class="num">②</div><p>连接板块的轮动「<b>不替代</b>」内存逻辑，两者在同一套物理系统里并存。</p></div>
+          <div class="th"><div class="num">③</div><p>美光任何因三星财报引发的回调，都是「<b>又一个结构性入场点</b>」——论据：已锁定 2027 大部分高毛利长协（<b>未给来源</b>）。</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- verdict -->
+    <div class="verdict">
+      <div class="vh"><span class="d">🎯</span>核心判断：这是重定价，不是误杀</div>
+      <p>博主的多头叙事盖住了真正的信号——他原话承认：华尔街开始把内存/存储当成「波动的<b>晚周期商品</b>」，把连接当成「不受约束的<b>长期复利成长股</b>」。<b>这句话本身就是重定价。</b>周期股被踢出「AI 永续成长」的估值框架，恰恰是逻辑可能变软的征兆，而不是被错杀。所以核心驱动不是 HDD 磁头或 Netlist（都是噪音），而是 <b>三星周四财报会不会坐实「量增、但价/利见顶」</b>。要跟，盯那个毛利率数据点，别信「逢跌即入场」这种不可证伪的话术。</p>
+    </div>
+
+    <!-- footer -->
+    <div class="strip">
+      <div class="it watch"><span class="em">👁️</span><div><h4>关注：三星周四毛利率</h4><p>10/8 的 Q3 预报，毛利率是唯一决定性数据点——不是博主"逢跌即买"的叙事。</p></div></div>
+      <div class="it risk"><span class="em">⚠️</span><div><h4>风险：内存周期见顶</h4><p>增速放缓 + 毛利见顶 + 资本开支加大，历史上常对应股价腰斩。</p></div></div>
+      <div class="it verify"><span class="em">✅</span><div><h4>验证：美光 2027 长协</h4><p>"已锁高毛利长协"若属实，可缓冲现货见顶；若不实，"回调即买点"地基就塌。</p></div></div>
+    </div>
+  </div>
+</body>
+</html>

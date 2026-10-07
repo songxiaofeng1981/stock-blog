@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video AI 工具链工作记录 · 2026-10-07</title>
+<style>
+:root {
+  --bg:#f6f7f9;
+  --panel:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --accent:#2563eb;
+  --accent-soft:#eff6ff;
+  --good:#0f766e;
+  --code:#111827;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height:1.75;
+}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:20;width:0}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr);max-width:1500px;margin:auto}
+aside{
+  position:sticky;top:0;height:100vh;padding:34px 24px 28px;border-right:1px solid var(--line);
+  background:rgba(246,247,249,.94);backdrop-filter:blur(12px);overflow:auto
+}
+.brand{font-weight:800;font-size:20px;line-height:1.35;margin-bottom:8px}
+.meta{font-size:13px;color:var(--muted);margin-bottom:24px}
+nav{display:flex;flex-direction:column;gap:3px}
+nav a{
+  color:#475569;text-decoration:none;padding:7px 10px;border-radius:9px;font-size:14px;
+  transition:.18s ease;
+}
+nav a:hover,nav a.active{background:var(--accent-soft);color:var(--accent)}
+nav a.sub{padding-left:22px;font-size:13px}
+main{padding:56px 68px 120px;max-width:980px;width:100%}
+h1{font-size:38px;line-height:1.25;margin:0 0 18px;letter-spacing:-.02em}
+h2{font-size:27px;margin-top:64px;padding-top:8px;border-top:1px solid var(--line)}
+h3{font-size:20px;margin-top:34px}
+p{margin:14px 0}
+strong{color:#111827}
+code{background:#eef2f7;padding:.15em .4em;border-radius:6px;font-size:.92em}
+pre{background:var(--code);color:#e5e7eb;padding:18px 20px;border-radius:14px;overflow:auto;line-height:1.55;box-shadow:0 10px 30px rgba(17,24,39,.08)}
+pre code{background:transparent;padding:0;color:inherit}
+blockquote{
+  margin:18px 0;padding:12px 18px;border-left:4px solid var(--accent);
+  background:var(--accent-soft);border-radius:0 12px 12px 0;color:#334155
+}
+ul,ol{padding-left:1.5em}
+li{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:34px 0}
+.table-wrap{overflow:auto;margin:18px 0;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#f8fafc;font-weight:700}
+tr:last-child td{border-bottom:none}
+.hero{
+  background:linear-gradient(135deg,#ffffff 0%,#eff6ff 100%);
+  border:1px solid #dbeafe;border-radius:20px;padding:26px 28px;margin-bottom:36px;
+}
+.hero .eyebrow{font-size:12px;color:var(--accent);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.hero .title{font-size:30px;font-weight:850;margin-top:7px}
+.hero .desc{color:var(--muted);margin-top:8px}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;background:#ecfdf5;color:var(--good);font-size:12px;font-weight:700;margin-right:6px}
+.mobile-toc{display:none}
+@media (max-width: 900px){
+  .shell{display:block}
+  aside{display:none}
+  main{padding:30px 20px 80px}
+  h1{font-size:30px}
+  h2{font-size:24px;margin-top:48px}
+  .mobile-toc{display:block;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:16px 0 28px}
+  .mobile-toc summary{font-weight:750;cursor:pointer}
+  .mobile-toc a{display:block;text-decoration:none;color:#475569;padding:6px 0}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="shell">
+  <aside>
+    <div class="brand">Video AI 工具链</div>
+    <div class="meta">2026-10-07 · 工作记录</div>
+    <nav id="toc">
+      <a class="" href="#Video-AI-工具链工作记录">Video AI 工具链工作记录</a><a class="sub" href="#1-今天完成的工作">1. 今天完成的工作</a><a class="sub" href="#2-模型缓存优化已经完成">2. 模型缓存优化：已经完成</a><a class="sub" href="#3-今天确认成功的内容">3. 今天确认成功的内容</a><a class="sub" href="#4-后续待办">4. 后续待办</a><a class="sub" href="#5-今天形成的核心理解">5. 今天形成的核心理解</a><a class="sub" href="#6-今天最重要的经验">6. 今天最重要的经验</a><a class="sub" href="#7-明天从这里继续">7. 明天从这里继续</a><a class="sub" href="#8-当前状态清单">8. 当前状态清单</a><a class="sub" href="#一句话记录">一句话记录</a>
+    </nav>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">WORK LOG</div>
+      <div class="title">Video AI 工具链工作记录</div>
+      <div class="desc">PySceneDetect · WhisperX · B-roll 自动化 · 模型缓存优化</div>
+      <div style="margin-top:14px">
+        <span class="badge">PySceneDetect PASS</span>
+        <span class="badge">B-roll 复用 PASS</span>
+        <span class="badge">共享缓存完成</span>
+      </div>
+    </section>
+
+    <details class="mobile-toc">
+      <summary>目录</summary>
+      <div style="margin-top:10px"><a class="" href="#Video-AI-工具链工作记录">Video AI 工具链工作记录</a><a class="sub" href="#1-今天完成的工作">1. 今天完成的工作</a><a class="sub" href="#2-模型缓存优化已经完成">2. 模型缓存优化：已经完成</a><a class="sub" href="#3-今天确认成功的内容">3. 今天确认成功的内容</a><a class="sub" href="#4-后续待办">4. 后续待办</a><a class="sub" href="#5-今天形成的核心理解">5. 今天形成的核心理解</a><a class="sub" href="#6-今天最重要的经验">6. 今天最重要的经验</a><a class="sub" href="#7-明天从这里继续">7. 明天从这里继续</a><a class="sub" href="#8-当前状态清单">8. 当前状态清单</a><a class="sub" href="#一句话记录">一句话记录</a></div>
+    </details>
+
+    <h1 id="Video-AI-工具链工作记录">Video AI 工具链工作记录</h1>
+
+<p><strong>日期：2026-10-07</strong> <strong>主题：PySceneDetect / WhisperX / B-roll 自动化 / 模型缓存优化</strong></p>
+
+<hr>
+
+<h2 id="1-今天完成的工作">1. 今天完成的工作</h2>
+
+<h3 id="11-PySceneDetect-基础验证完成">1.1 PySceneDetect 基础验证完成</h3>
+
+<p>使用素材：</p>
+
+<pre><code>~/Downloads/IMG_6002.MOV</code></pre>
+
+<p>测试目录：</p>
+
+<pre><code>~/Downloads/IMG_6002_scenedetect_test/</code></pre>
+
+<p>PySceneDetect 已成功识别出 3 个 Scene：</p>
+
+<div class="table-wrap"><table>
+<tr><th>Scene</th><th>时间范围</th><th>人工确认内容</th></tr>
+<tr><td>Scene 01</td><td>0.000s → 5.737s</td><td>键盘</td></tr>
+<tr><td>Scene 02</td><td>5.737s → 11.055s</td><td>显示器</td></tr>
+<tr><td>Scene 03</td><td>11.055s → 15.958s</td><td>植物</td></tr>
+</table></div>
+
+<p>已生成 Scene CSV、3 个 Scene clips、3 张代表图和 <code>contact_sheet.jpg</code>。</p>
+
+<p><strong>结论：PySceneDetect = PASS。</strong></p>
+
+<p>已经明确理解它的职责：</p>
+
+<blockquote>PySceneDetect 不负责理解“这是键盘还是显示器”，它负责找到镜头边界，把长视频切成可以被后续 Agent 精确调用的 Scene 单元。</blockquote>
+
+<hr>
+
+<h3 id="12-验证-PySceneDetect-在-B-roll-自动化中的实际价值">1.2 验证 PySceneDetect 在 B-roll 自动化中的实际价值</h3>
+
+<p>新增口播素材：</p>
+
+<pre><code>~/Downloads/IMG_6003.MOV</code></pre>
+
+<p>没有重新运行 PySceneDetect，而是直接复用已有 Scene 结果。</p>
+
+<p>WhisperX 实际转录后识别到了三个主题：</p>
+
+<ul><li>键盘</li><li>显示器</li><li>植物</li></ul>
+
+<p>实际匹配结果：</p>
+
+<div class="table-wrap"><table>
+<tr><th>口播时间</th><th>主题</th><th>复用 Scene</th></tr>
+<tr><td>2.581s → 5.365s</td><td>键盘</td><td>Scene 01</td></tr>
+<tr><td>5.665s → 10.952s</td><td>显示器</td><td>Scene 02</td></tr>
+<tr><td>11.613s → 13.155s</td><td>植物</td><td>Scene 03</td></tr>
+</table></div>
+
+<p>生成：</p>
+
+<pre><code>~/Downloads/IMG_6002_scenedetect_test/broll_demo/output/broll_auto_demo.mp4
+~/Downloads/IMG_6002_scenedetect_test/broll_demo/output/broll_auto_demo_explained.mp4</code></pre>
+
+<p>这已经证明：</p>
+
+<pre><code>长 B-roll
+    ↓
+PySceneDetect
+    ↓
+Scene 01 / Scene 02 / Scene 03
+    ↓
+可复用 Scene Library
+    ↓
+根据口播内容选择 Scene
+    ↓
+自动插入 B-roll</code></pre>
+
+<hr>
+
+<h3 id="13-找到了-12-分钟执行时间过长的主要问题">1.3 找到了 12 分钟执行时间过长的主要问题</h3>
+
+<p>约 16 秒的视频 Demo 总耗时约 12 分钟，效率明显不合理。</p>
+
+<p>主要原因：</p>
+
+<ol><li><strong>WhisperX 冷启动 / 项目级模型缓存</strong></li></ol>
+<ul><li>原来模型落在项目目录。</li><li>大约 3.2 GB。</li><li>存在重复下载、重复准备风险。</li></ul>
+
+<ol><li><strong>Demo 做了太多非生产步骤</strong></li></ol>
+<ul><li>explained video</li><li>教学 slide</li><li>QA 抽帧</li><li>QA contact sheet</li><li>多次 ffprobe</li><li>多次编码</li><li>report</li></ul>
+
+<ol><li><strong>FFmpeg 第一次编码失败后重跑</strong></li></ol>
+<ul><li>横屏 B-roll 适配竖屏画布时出现尺寸/padding 问题。</li><li>后续应该固化统一 <code>fit_video()</code> 逻辑。</li></ul>
+
+<ol><li><strong>B-roll 匹配不需要 Word-Level Alignment</strong></li></ol>
+<ul><li>普通 B-roll 只需要句子级时间。</li><li>不需要每个汉字的精确时间。</li></ul>
+
+<hr>
+
+<h2 id="2-模型缓存优化已经完成">2. 模型缓存优化：已经完成</h2>
+
+<h3 id="21-原来的位置">2.1 原来的位置</h3>
+
+<pre><code>~/Downloads/IMG_6002_scenedetect_test/broll_demo/metadata/models/</code></pre>
+
+<p>内容包括：</p>
+
+<ul><li>faster-whisper-small</li><li>中文 wav2vec2 alignment model</li><li>Torchaudio Wav2Vec checkpoint</li><li>Silero VAD cache</li></ul>
+
+<h3 id="22-现在的全局共享缓存">2.2 现在的全局共享缓存</h3>
+
+<p>Hugging Face：</p>
+
+<pre><code>~/.cache/huggingface/hub/</code></pre>
+
+<p>Torch：</p>
+
+<pre><code>~/.cache/torch/</code></pre>
+
+<p>当前缓存总大小：</p>
+
+<pre><code>3.23 GiB</code></pre>
+
+<p>主要内容：</p>
+
+<pre><code>models--Systran--faster-whisper-small
+models--jonatasgrosman--wav2vec2-large-xlsr-53-chinese-zh-cn
+wav2vec2_fairseq_base_ls960_asr_ls960.pth
+snakers4/silero-vad</code></pre>
+
+<h3 id="23-已完成的缓存治理">2.3 已完成的缓存治理</h3>
+
+<ul><li>模型迁移到全局共享缓存</li><li>没有复制第二份 3.2 GB 数据</li><li>Hugging Face <code>blobs / refs / snapshots</code> 结构保留</li><li>旧 Demo 路径使用 symlink，保证兼容</li><li><code>.zshrc</code> 设置：</li></ul>
+
+<pre><code>HF_HOME=~/.cache/huggingface
+TORCH_HOME=~/.cache/torch</code></pre>
+
+<ul><li>更新：</li></ul>
+
+<pre><code>~/.config/video-ai-tools/TOOLS.md</code></pre>
+
+<ul><li>Codex / Claude Code 共用同一份工具说明和缓存规则</li><li>创建只读缓存检查命令：</li></ul>
+
+<pre><code>~/.local/bin/video-ai-cache-status</code></pre>
+
+<ul><li>使用 <code>local_files_only=True</code> 已成功定位：</li><li>faster-whisper-small</li><li>中文 wav2vec2 snapshot</li></ul>
+
+<p><strong>当前磁盘只保存一份共享模型数据。</strong></p>
+
+<hr>
+
+<h2 id="3-今天确认成功的内容">3. 今天确认成功的内容</h2>
+
+<h3 id="PySceneDetect">PySceneDetect</h3>
+
+<p><strong>成功。</strong></p>
+
+<p>真正的意义已经明确：</p>
+
+<blockquote>把长 B-roll 素材转成可检索、可复用、带精确时间范围的 Shot Library。</blockquote>
+
+<h3 id="PySceneDetect-下游复用">PySceneDetect 下游复用</h3>
+
+<p><strong>成功。</strong></p>
+
+<p>没有重新跑 Scene Detection，直接复用旧 Scene：</p>
+
+<pre><code>口播“键盘”   → Scene 01
+口播“显示器” → Scene 02
+口播“植物”   → Scene 03</code></pre>
+
+<p>说明 SceneDetect 的输出可以作为长期资产使用。</p>
+
+<h3 id="WhisperX-转录">WhisperX 转录</h3>
+
+<p><strong>成功。</strong></p>
+
+<p>IMG_6003 已完成真实中文转录，并提供逐字时间信息。</p>
+
+<p>同时确认：</p>
+
+<blockquote>普通 B-roll 匹配没必要每次使用完整 Word-Level Alignment。</blockquote>
+
+<h3 id="模型全局缓存">模型全局缓存</h3>
+
+<p><strong>缓存定位与迁移成功。</strong></p>
+
+<p>现在：</p>
+
+<pre><code>Codex
+Claude Code
+不同视频项目
+        ↓
+同一份用户级模型缓存</code></pre>
+
+<hr>
+
+<h2 id="4-后续待办">4. 后续待办</h2>
+
+<h3 id="TODO-1验证模型能否真正完全离线加载">TODO 1：验证模型能否真正完全离线加载</h3>
+
+<p>目前已经验证：</p>
+
+<pre><code>模型文件存在
+local_files_only 可以定位 snapshot</code></pre>
+
+<p>但还没有验证：</p>
+
+<pre><code>WhisperX / faster-whisper 真正实例化模型
++
+中文 alignment model 真正加载
++
+全程不联网</code></pre>
+
+<p>下一步应做：</p>
+
+<p><strong>Offline Model Load Test</strong></p>
+
+<p>要求：</p>
+
+<ul><li>不转录视频</li><li>不跑 Demo</li><li>不下载模型</li><li>只实例化模型</li><li>成功后立即释放</li><li>记录 load time</li></ul>
+
+<p>全部成功后：</p>
+
+<pre><code>CACHE LAYER VERIFIED</code></pre>
+
+<hr>
+
+<h3 id="TODO-2单独测试-WhisperX-性能瓶颈">TODO 2：单独测试 WhisperX 性能瓶颈</h3>
+
+<p>继续使用：</p>
+
+<pre><code>IMG_6003.MOV</code></pre>
+
+<p>分别测试：</p>
+
+<p>#### FAST</p>
+
+<pre><code>ASR only
+segment timestamp</code></pre>
+
+<p>#### FULL</p>
+
+<pre><code>ASR
++
+alignment
++
+word timestamp</code></pre>
+
+<p>记录：</p>
+
+<pre><code>Audio duration
+ASR time
+Alignment time
+Total time</code></pre>
+
+<p>目标：</p>
+
+<blockquote>明确 16 秒视频到底是 ASR 慢，还是 alignment 慢。</blockquote>
+
+<hr>
+
+<h3 id="TODO-3建立-FAST--FULL-两套固定模式">TODO 3：建立 FAST / FULL 两套固定模式</h3>
+
+<p>#### FAST MODE</p>
+
+<p>用于：</p>
+
+<ul><li>B-roll 自动匹配</li><li>普通字幕</li><li>内容理解</li><li>视频搜索</li><li>大部分财经口播</li></ul>
+
+<p>只需要：</p>
+
+<pre><code>ASR
++
+segment timestamp</code></pre>
+
+<p>#### FULL MODE</p>
+
+<p>只用于：</p>
+
+<ul><li>ACTION / CUT / RETAKE</li><li>精确剪点</li><li>Word-Level 字幕</li><li>逐字高亮</li><li>Forced Alignment</li></ul>
+
+<p>原则：</p>
+
+<blockquote>默认 FAST，确实需要精确时间时才 FULL。</blockquote>
+
+<hr>
+
+<h3 id="TODO-4优化视频生成路径">TODO 4：优化视频生成路径</h3>
+
+<p>正常生产模式不要默认生成：</p>
+
+<ul><li>explained demo</li><li>contact sheet</li><li>QA sheet</li><li>大量抽帧</li><li>重复 ffprobe</li><li>多次编码</li><li>大段 report</li></ul>
+
+<p>这些改成：</p>
+
+<pre><code>--debug</code></pre>
+
+<p>或：</p>
+
+<pre><code>--full-validation</code></pre>
+
+<p>正常生产只保留：</p>
+
+<pre><code>ASR
+↓
+Scene Match
+↓
+一次 FFmpeg / Remotion
+↓
+Final MP4</code></pre>
+
+<hr>
+
+<h3 id="TODO-5给每个阶段加入耗时统计">TODO 5：给每个阶段加入耗时统计</h3>
+
+<p>以后 Agent 运行必须输出类似：</p>
+
+<pre><code>[0.2s] Load Scene Library
+[8.3s] ASR
+[0.1s] Semantic Match
+[11.4s] FFmpeg Render
+
+TOTAL: 20.0s</code></pre>
+
+<p>没有 timing telemetry，就无法真正优化。</p>
+
+<hr>
+
+<h3 id="TODO-6固化-FFmpeg-视频尺寸适配">TODO 6：固化 FFmpeg 视频尺寸适配</h3>
+
+<p>统一处理：</p>
+
+<pre><code>横屏
+竖屏
+4K
+1080p
+不同 FPS</code></pre>
+
+<p>固化成一个可靠的：</p>
+
+<pre><code>fit_video()</code></pre>
+
+<p>以后 Agent 不再临时重新设计：</p>
+
+<pre><code>scale
+crop
+pad
+setsar
+fps
+pixel format</code></pre>
+
+<hr>
+
+<h3 id="TODO-7考虑统一-WhisperX-Wrapper">TODO 7：考虑统一 WhisperX Wrapper</h3>
+
+<p>后续可建立：</p>
+
+<pre><code>~/.local/bin/video-whisperx</code></pre>
+
+<p>统一负责：</p>
+
+<pre><code>HF_HOME
+TORCH_HOME
+默认缓存
+FAST / FULL 参数</code></pre>
+
+<p>暂时不用急，先完成 Offline Model Load Test。</p>
+
+<hr>
+
+<h2 id="5-今天形成的核心理解">5. 今天形成的核心理解</h2>
+
+<h3 id="PySceneDetect">PySceneDetect</h3>
+
+<pre><code>PySceneDetect
+=
+Shot Segmentation</code></pre>
+
+<p>负责：</p>
+
+<ul><li>找镜头边界</li><li>给出准确 Start / End</li><li>把长视频变成 Scene Library</li></ul>
+
+<p>不负责：</p>
+
+<ul><li>理解画面内容</li><li>理解口播</li><li>决定最终剪辑</li></ul>
+
+<h3 id="WhisperX">WhisperX</h3>
+
+<pre><code>WhisperX
+=
+Speech → Text + Time</code></pre>
+
+<p>负责：</p>
+
+<ul><li>识别说了什么</li><li>给语句时间</li><li>FULL 模式可以进一步得到 Word-Level Alignment</li></ul>
+
+<h3 id="B-roll-自动化完整结构">B-roll 自动化完整结构</h3>
+
+<pre><code>B-roll 原始素材
+      ↓
+PySceneDetect
+      ↓
+Scene Library
+      ↓
+视觉 / 人工标签
+
+口播
+      ↓
+WhisperX
+      ↓
+语义内容 + 时间
+
+Scene Library
+      +
+口播语义
+      ↓
+Matching Logic
+      ↓
+选择 Scene
+      ↓
+FFmpeg / Remotion
+      ↓
+Final Video</code></pre>
+
+<hr>
+
+<h2 id="6-今天最重要的经验">6. 今天最重要的经验</h2>
+
+<h3 id="经验-1已经验证过的东西不要反复验证">经验 1：已经验证过的东西不要反复验证</h3>
+
+<p>IMG_6002 已经 SceneDetect 成功后，后续应直接复用结果。</p>
+
+<h3 id="经验-2模型属于机器不属于项目">经验 2：模型属于机器，不属于项目</h3>
+
+<p>错误：</p>
+
+<pre><code>project-A/models/3GB
+project-B/models/3GB
+project-C/models/3GB</code></pre>
+
+<p>正确：</p>
+
+<pre><code>~/.cache/
+   ↓
+所有 Agent / 项目共享</code></pre>
+
+<h3 id="经验-3安装冷启动耗时和生产耗时要分开">经验 3：安装/冷启动耗时和生产耗时要分开</h3>
+
+<p>第一次下载 3 GB 模型属于安装成本。</p>
+
+<p>以后真正关心的是：</p>
+
+<blockquote>热缓存状态下处理一条视频需要多久。</blockquote>
+
+<h3 id="经验-4B-roll-不需要过度精确">经验 4：B-roll 不需要过度精确</h3>
+
+<p>普通 B-roll：</p>
+
+<pre><code>一句话 2.5s → 5.4s</code></pre>
+
+<p>已经足够。</p>
+
+<p>没必要为了插一段镜头启动 2.4 GB alignment model 去计算单字时间。</p>
+
+<h3 id="经验-5Demo-和生产流程必须分开">经验 5：Demo 和生产流程必须分开</h3>
+
+<p>第一次学习时：</p>
+
+<pre><code>contact sheet
+explained video
+QA
+report</code></pre>
+
+<p>有价值。</p>
+
+<p>日常生产必须尽量短。</p>
+
+<h3 id="经验-6Agent-不应该每次临场重新发明-FFmpeg">经验 6：Agent 不应该每次临场重新发明 FFmpeg</h3>
+
+<p>常见操作应该固化成经过验证的组件：</p>
+
+<pre><code>fit_video()
+trim()
+overlay_broll()
+normalize_audio()
+render()</code></pre>
+
+<p>Agent 负责“决定怎么剪”，而不是每条视频重新研究编码参数。</p>
+
+<h3 id="经验-7所有性能优化都要有数据">经验 7：所有性能优化都要有数据</h3>
+
+<p>以后不要只知道：</p>
+
+<blockquote>“这次花了 12 分钟。”</blockquote>
+
+<p>应该知道：</p>
+
+<pre><code>模型加载：XX 秒
+ASR：XX 秒
+Alignment：XX 秒
+Scene Match：XX 秒
+Render：XX 秒
+QA：XX 秒</code></pre>
+
+<hr>
+
+<h2 id="7-明天从这里继续">7. 明天从这里继续</h2>
+
+<p><strong>不要重新跑今天的大 Demo。</strong></p>
+
+<p>第一件事只做：</p>
+
+<h3 id="Offline-Model-Load-Test">Offline Model Load Test</h3>
+
+<p>目标：</p>
+
+<pre><code>faster-whisper-small       PASS
+Chinese alignment model    PASS
+Torch checkpoint           PASS
+Silero VAD                 PASS
+Network download           NONE
+
+CACHE LAYER VERIFIED</code></pre>
+
+<p>完成以后进入：</p>
+
+<h3 id="ASR-Benchmark">ASR Benchmark</h3>
+
+<p>比较：</p>
+
+<pre><code>FAST ASR
+vs
+FULL WhisperX Alignment</code></pre>
+
+<p>然后再决定生产模式参数。</p>
+
+<hr>
+
+<h2 id="8-当前状态清单">8. 当前状态清单</h2>
+
+<pre><code>[✓] WhisperX 已安装并真实跑过
+[✓] PySceneDetect 已安装
+[✓] PySceneDetect Scene Detection 验证完成
+[✓] B-roll Scene 复用 Demo 完成
+[✓] Scene → 口播匹配验证完成
+[✓] 模型缓存问题定位
+[✓] 3.23 GiB 模型迁移为全局共享缓存
+[✓] Codex / Claude Code 共享缓存约定
+[✓] cache status 工具
+[ ] Offline Model Load Test
+[ ] ASR-only 性能测试
+[ ] Alignment 性能测试
+[ ] FAST / FULL 模式
+[ ] Timing telemetry
+[ ] FFmpeg 固化组件
+[ ] 最终 Fast Production Pipeline</code></pre>
+
+<hr>
+
+<h2 id="一句话记录">一句话记录</h2>
+
+<blockquote>今天已经从“安装几个视频插件”推进到了“开始搭建一套可复用的自动视频工具链”。下一步重点不再是增加工具，而是减少重复工作、复用缓存、拆分 FAST/FULL 路径，并把每一步的耗时测清楚。</blockquote>
+  </main>
+</div>
+
+<script>
+const progress = document.getElementById('progress');
+const links = [...document.querySelectorAll('#toc a')];
+const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+function updateProgress(){
+  const h = document.documentElement;
+  const p = h.scrollTop / (h.scrollHeight - h.clientHeight);
+  progress.style.width = (Math.max(0, Math.min(1,p))*100) + '%';
+}
+function updateActive(){
+  let current = sections[0];
+  for (const s of sections){
+    if (s.getBoundingClientRect().top <= 120) current = s;
+  }
+  links.forEach(a => a.classList.toggle('active', current && a.getAttribute('href') === '#' + current.id));
+}
+window.addEventListener('scroll', () => { updateProgress(); updateActive(); }, {passive:true});
+updateProgress(); updateActive();
+</script>
+</body>
+</html>
